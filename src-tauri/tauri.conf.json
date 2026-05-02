@@ -38,7 +38,7 @@
       "../icon.png"
     ],
     "resources": {
-      "../../scsdashboardeditor.dll": "scsdashboardeditor.dll"
+      "../sdk_dll/scsdashboardeditor.dll": "scsdashboardeditor.dll"
     },
     "windows": {
       "wix": {},
