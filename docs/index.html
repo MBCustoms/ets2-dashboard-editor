@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ETS2 Dashboard Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "tertiary": "#ffb785",
+          "primary": "#9fcaff",
+          "on-surface": "#dfe2eb",
+          "on-secondary-fixed": "#1a1c1c",
+          "secondary-fixed": "#e2e2e2",
+          "secondary-fixed-dim": "#c6c6c7",
+          "on-primary-fixed": "#001d36",
+          "tertiary-container": "#e77600",
+          "error": "#ffb4ab",
+          "on-primary-container": "#002f54",
+          "on-tertiary-fixed-variant": "#713700",
+          "on-primary-fixed-variant": "#00497e",
+          "surface-container-high": "#262a31",
+          "on-error-container": "#ffdad6",
+          "inverse-surface": "#dfe2eb",
+          "secondary-container": "#454747",
+          "surface-container-lowest": "#0a0e14",
+          "ghost-white": "rgba(255, 255, 255, 0.6)",
+          "subtle-white": "rgba(255, 255, 255, 0.5)",
+          "frosted-white": "rgba(255, 255, 255, 0.1)",
+          "on-error": "#690005",
+          "on-tertiary-container": "#4b2200",
+          "secondary": "#c6c6c7",
+          "on-secondary-fixed-variant": "#454747",
+          "outline": "#89919e",
+          "void-black": "#000000",
+          "surface-bright": "#353940",
+          "surface-container": "#1b2026",
+          "error-container": "#93000a",
+          "primary-fixed-dim": "#9fcaff",
+          "surface-container-low": "#171c22",
+          "tertiary-fixed-dim": "#ffb785",
+          "blue-glow": "rgba(0, 153, 255, 0.15)",
+          "on-secondary-container": "#b4b5b5",
+          "surface-container-highest": "#31353c",
+          "surface-tint": "#9fcaff",
+          "on-tertiary-fixed": "#301400",
+          "near-black": "#090909",
+          "primary-fixed": "#d2e4ff",
+          "on-primary": "#003259",
+          "inverse-on-surface": "#2c3137",
+          "muted-silver": "#a6a6a6",
+          "primary-container": "#0099ff",
+          "surface-dim": "#0f141a",
+          "on-tertiary": "#502500",
+          "outline-variant": "#3f4753",
+          "on-secondary": "#2f3131",
+          "background": "#0f141a",
+          "tertiary-fixed": "#ffdcc6",
+          "inverse-primary": "#0061a5",
+          "surface": "#0f141a",
+          "on-background": "#dfe2eb",
+          "on-surface-variant": "#bfc7d5",
+          "surface-variant": "#31353c"
+        },
+        borderRadius: {
+          "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"
+        },
+        spacing: {
+          "md": "20px", "base": "8px", "sm": "12px", "lg": "35px",
+          "xs": "4px", "container-max": "1200px", "section-gap": "120px"
+        },
+        fontFamily: {
+          "card-title": ["Inter","sans-serif"],
+          "label-micro": ["Inter","sans-serif"],
+          "body-large": ["Inter","sans-serif"],
+          "section-display": ["Space Grotesk","sans-serif"],
+          "body-ui": ["Inter","sans-serif"],
+          "feature-heading": ["Space Grotesk","sans-serif"],
+          "display-hero": ["Space Grotesk","sans-serif"],
+          "micro-uppercase": ["Inter","sans-serif"]
+        },
+        fontSize: {
+          "card-title": ["24px",{"lineHeight":"1.30","letterSpacing":"-0.01px","fontWeight":"400"}],
+          "label-micro": ["13px",{"lineHeight":"1.60","letterSpacing":"normal","fontWeight":"500"}],
+          "body-large": ["18px",{"lineHeight":"1.30","letterSpacing":"-0.01px","fontWeight":"400"}],
+          "section-display": ["85px",{"lineHeight":"0.95","letterSpacing":"-4.25px","fontWeight":"500"}],
+          "body-ui": ["15px",{"lineHeight":"1.00","letterSpacing":"-0.15px","fontWeight":"400"}],
+          "feature-heading": ["32px",{"lineHeight":"1.13","letterSpacing":"-1px","fontWeight":"500"}],
+          "display-hero": ["110px",{"lineHeight":"0.85","letterSpacing":"-5.5px","fontWeight":"500"}],
+          "micro-uppercase": ["7px",{"lineHeight":"1.00","letterSpacing":"0.21px","fontWeight":"400"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #000000; color: #dfe2eb; overflow-x: hidden; }
+  .text-framer-blue { color: #0099ff; }
+  .bg-framer-blue { background-color: #0099ff; }
+  .blue-glow-ring {
+    box-shadow: 0 0 0 1px rgba(0,153,255,0.15), 0 30px 60px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .card-glow-ring {
+    box-shadow: 0 0 0 1px rgba(0,153,255,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .lang-btn { cursor: pointer; transition: all 0.2s; }
+  .lang-btn.active { color: #0099ff; }
+</style>
+</head>
+<body class="antialiased font-body-ui text-body-ui">
+
+<!-- TopNavBar -->
+<nav class="fixed top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl rounded-full border border-white/10 bg-black/70 backdrop-blur-xl border-b border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] flex justify-between items-center px-6 py-3 z-[100]">
+  <a href="index.html" class="text-lg font-black tracking-tighter text-white uppercase font-['Space_Grotesk'] leading-none">
+    ETS2 DASHBOARD EDITOR
+  </a>
+  <div class="hidden md:flex gap-8 items-center">
+    <a class="text-white/60 hover:text-white hover:scale-95 transition-all duration-200 active:scale-90 font-['Space_Grotesk'] tracking-tighter leading-none" href="index.html#features" data-i18n="nav_features">Features</a>
+    <a class="text-white/60 hover:text-white hover:scale-95 transition-all duration-200 active:scale-90 font-['Space_Grotesk'] tracking-tighter leading-none" href="index.html#showcase" data-i18n="nav_showcase">Showcase</a>
+    <a class="text-white/60 hover:text-white hover:scale-95 transition-all duration-200 active:scale-90 font-['Space_Grotesk'] tracking-tighter leading-none" href="documentation.html" data-i18n="nav_docs">Docs</a>
+    <a class="text-white/60 hover:text-white hover:scale-95 transition-all duration-200 active:scale-90 font-['Space_Grotesk'] tracking-tighter leading-none" href="index.html#community" data-i18n="nav_community">Community</a>
+  </div>
+  <div class="flex items-center gap-3">
+    <!-- Language Switcher -->
+    <div class="hidden md:flex items-center gap-1 border border-white/10 rounded-full px-2 py-1">
+      <button onclick="setLang('en')" id="btn-en" class="lang-btn active text-xs font-['Space_Grotesk'] font-semibold px-2 py-0.5 rounded-full text-white/60">EN</button>
+      <span class="text-white/20 text-xs">|</span>
+      <button onclick="setLang('tr')" id="btn-tr" class="lang-btn text-xs font-['Space_Grotesk'] font-semibold px-2 py-0.5 rounded-full text-white/60">TR</button>
+    </div>
+    <a href="https://www.patreon.com/cw/MB3DWorks" target="_blank" data-github-link class="text-white/60 hover:text-white hover:scale-95 transition-all duration-200 text-sm hidden md:block font-['Space_Grotesk'] tracking-tighter" data-i18n="nav_patreon">Support on Patreon</a>
+    <a href="https://github.com/MBCustoms/ets2-dashboard-editor/releases/latest" target="_blank" class="bg-white text-black px-6 py-2 rounded-full font-medium hover:scale-95 active:scale-90 transition-transform font-['Space_Grotesk']" data-i18n="nav_download">Download</a>
+  </div>
+</nav>
+
+<main class="w-full max-w-container-max mx-auto px-6 pt-40 pb-20 flex flex-col gap-section-gap">
+
+  <!-- Hero Section -->
+  <section class="flex flex-col items-center text-center gap-8 mt-10">
+    <div class="inline-flex items-center gap-2 border border-white/10 rounded-full px-4 py-1.5 bg-white/5 text-white/60 text-sm font-['Space_Grotesk']">
+      <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+      <span data-i18n="hero_badge">v0.1.0 — Now Available</span>
+    </div>
+    <h1 class="font-display-hero text-display-hero text-white max-w-4xl">
+      <span data-i18n="hero_title_1">Precision in</span><br/>
+      <span class="text-framer-blue" data-i18n="hero_title_2">every pixel.</span>
+    </h1>
+    <p class="font-body-large text-body-large text-ghost-white max-w-2xl mt-4" data-i18n="hero_desc">
+      The ultimate visual editor for creating custom Euro Truck Simulator 2 telemetry dashboards. Built for creators who demand absolute control over their driving experience.
+    </p>
+    <div class="flex gap-4 mt-8">
+      <a href="https://github.com/MBCustoms/ets2-dashboard-editor/releases/latest" target="_blank" class="bg-white text-black px-8 py-4 rounded-full font-medium hover:scale-95 active:scale-90 transition-transform font-['Space_Grotesk']" data-i18n="hero_download">
+        Download Now
+      </a>
+      <a href="documentation.html" class="bg-frosted-white text-white px-8 py-4 rounded-full font-medium hover:scale-95 active:scale-90 transition-transform shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] border border-white/5 font-['Space_Grotesk']" data-i18n="hero_docs">
+        View Docs
+      </a>
+    </div>
+    <p class="text-white/30 text-xs font-['Space_Grotesk'] mt-2" data-i18n="hero_free">Free & Open Source — Windows</p>
+  </section>
+
+  <!-- Showcase Section -->
+  <section class="w-full" id="showcase">
+    <div class="relative rounded-xl overflow-hidden blue-glow-ring bg-surface-container-lowest">
+      <img
+        alt="ETS2 Dashboard Editor interface"
+        class="w-full h-auto block"
+        src="./assets/img/sc.png"
+      />
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="flex flex-col gap-12" id="features">
+    <div class="text-center">
+      <span class="font-['Space_Grotesk'] uppercase tracking-[0.2em] text-[11px] text-primary-container" data-i18n="features_label">Features</span>
+      <h2 class="font-feature-heading text-feature-heading text-white mt-3" data-i18n="features_title">Everything you need to build the perfect dashboard</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-surface-container-lowest p-8 rounded-xl card-glow-ring flex flex-col gap-4">
+        <div class="w-12 h-12 rounded-full bg-frosted-white flex items-center justify-center text-white mb-2">
+          <span class="material-symbols-outlined text-2xl">dashboard_customize</span>
+        </div>
+        <h3 class="font-card-title text-card-title text-white" data-i18n="feat1_title">Drag & Drop Editor</h3>
+        <p class="text-ghost-white text-body-ui font-body-ui leading-relaxed" data-i18n="feat1_desc">
+          Add, position, and resize dashboard elements visually. Design complex layouts without touching a single line of code.
+        </p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl card-glow-ring flex flex-col gap-4">
+        <div class="w-12 h-12 rounded-full bg-frosted-white flex items-center justify-center text-white mb-2">
+          <span class="material-symbols-outlined text-2xl">speed</span>
+        </div>
+        <h3 class="font-card-title text-card-title text-white" data-i18n="feat2_title">Live Telemetry Preview</h3>
+        <p class="text-ghost-white text-body-ui font-body-ui leading-relaxed" data-i18n="feat2_desc">
+          Connect directly to the ETS2/ATS telemetry server and see your dashboard update in real-time as you drive in the simulator.
+        </p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl card-glow-ring flex flex-col gap-4">
+        <div class="w-12 h-12 rounded-full bg-frosted-white flex items-center justify-center text-white mb-2">
+          <span class="material-symbols-outlined text-2xl">view_in_ar</span>
+        </div>
+        <h3 class="font-card-title text-card-title text-white" data-i18n="feat3_title">3D Model Viewer</h3>
+        <p class="text-ghost-white text-body-ui font-body-ui leading-relaxed" data-i18n="feat3_desc">
+          Apply your dashboard design to a UV-mapped 3D truck model and preview how it will look in-game before exporting.
+        </p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl card-glow-ring flex flex-col gap-4">
+        <div class="w-12 h-12 rounded-full bg-frosted-white flex items-center justify-center text-white mb-2">
+          <span class="material-symbols-outlined text-2xl">draw</span>
+        </div>
+        <h3 class="font-card-title text-card-title text-white" data-i18n="feat4_title">Custom SVG Support</h3>
+        <p class="text-ghost-white text-body-ui font-body-ui leading-relaxed" data-i18n="feat4_desc">
+          Import your own vector graphics and manipulate their paths, colors, and transformations dynamically based on game telemetry data.
+        </p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl card-glow-ring flex flex-col gap-4">
+        <div class="w-12 h-12 rounded-full bg-frosted-white flex items-center justify-center text-white mb-2">
+          <span class="material-symbols-outlined text-2xl">package_2</span>
+        </div>
+        <h3 class="font-card-title text-card-title text-white" data-i18n="feat5_title">One-Click Mod Export</h3>
+        <p class="text-ghost-white text-body-ui font-body-ui leading-relaxed" data-i18n="feat5_desc">
+          Export your dashboard as a game-ready mod ZIP with a single click. No manual file wrangling — just create and ship.
+        </p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl card-glow-ring flex flex-col gap-4">
+        <div class="w-12 h-12 rounded-full bg-frosted-white flex items-center justify-center text-white mb-2">
+          <span class="material-symbols-outlined text-2xl">undo</span>
+        </div>
+        <h3 class="font-card-title text-card-title text-white" data-i18n="feat6_title">Full Undo / Redo</h3>
+        <p class="text-ghost-white text-body-ui font-body-ui leading-relaxed" data-i18n="feat6_desc">
+          Every action is tracked. Experiment freely knowing you can always step back to any previous state with unlimited history.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Patreon Section -->
+  <section class="w-full flex flex-col md:flex-row items-center justify-between bg-surface-container-lowest p-12 rounded-xl card-glow-ring gap-12" id="community">
+    <div class="flex-1 flex flex-col gap-6">
+      <h2 class="font-feature-heading text-feature-heading text-white" data-i18n="patreon_title">Support the Journey</h2>
+      <p class="font-body-large text-body-large text-ghost-white leading-relaxed" data-i18n="patreon_desc">
+        This project is a labor of love for the ETS2 &amp; ATS community. If the editor helps you create the dashboard of your dreams, consider supporting its development on Patreon. Every contribution helps keep the updates rolling.
+      </p>
+    </div>
+    <div class="flex-shrink-0 flex flex-col gap-4">
+      <a href="https://www.patreon.com/cw/MB3DWorks" target="_blank" class="bg-[#FF424D] text-white px-8 py-4 rounded-full font-medium hover:scale-95 active:scale-90 transition-transform flex items-center gap-2 font-['Space_Grotesk']">
+        <span class="material-symbols-outlined">favorite</span>
+        <span data-i18n="patreon_btn">Support on Patreon</span>
+      </a>
+      <a href="https://github.com/MBCustoms/ets2-dashboard-editor" target="_blank" class="bg-frosted-white text-white px-8 py-4 rounded-full font-medium hover:scale-95 active:scale-90 transition-transform flex items-center gap-2 border border-white/10 font-['Space_Grotesk']">
+        <span class="material-symbols-outlined">code</span>
+        <span data-i18n="patreon_github">View on GitHub</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="w-full max-w-7xl mx-auto px-8 py-20 flex flex-col md:flex-row justify-between items-center gap-8 border-t border-white/5 bg-black border-t border-[#0099ff1a]">
+  <div class="text-white font-bold font-['Space_Grotesk'] uppercase tracking-[0.2em] text-[10px]" data-i18n="footer_copy">
+    © 2025 ETS2 DASHBOARD EDITOR. BUILT FOR PRECISION.
+  </div>
+  <div class="flex flex-wrap justify-center gap-6">
+    <a class="text-white/30 hover:text-[#0099ff] transition-colors font-['Space_Grotesk'] uppercase tracking-[0.2em] text-[10px]" href="documentation.html" data-i18n="footer_docs">Documentation</a>
+    <a class="text-white/30 hover:text-[#0099ff] transition-colors font-['Space_Grotesk'] uppercase tracking-[0.2em] text-[10px]" href="changelog.html" data-i18n="footer_changelog">Changelog</a>
+    <a class="text-white/30 hover:text-[#0099ff] transition-colors font-['Space_Grotesk'] uppercase tracking-[0.2em] text-[10px]" href="https://patreon.com" target="_blank" data-i18n="footer_patreon">Patreon</a>
+    <a class="text-white/30 hover:text-[#0099ff] transition-colors font-['Space_Grotesk'] uppercase tracking-[0.2em] text-[10px]" href="https://github.com/MBCustoms/ets2-dashboard-editor" target="_blank" data-i18n="footer_github">GitHub</a>
+  </div>
+</footer>
+
+<script>
+const translations = {
+  en: {
+    nav_features: "Features",
+    nav_showcase: "Showcase",
+    nav_docs: "Docs",
+    nav_community: "Community",
+    nav_patreon: "Support on Patreon",
+    nav_download: "Download",
+    hero_badge: "v0.1.0 — Now Available",
+    hero_title_1: "Precision in",
+    hero_title_2: "every pixel.",
+    hero_desc: "The ultimate visual editor for creating custom Euro Truck Simulator 2 telemetry dashboards. Built for creators who demand absolute control over their driving experience.",
+    hero_download: "Download Now",
+    hero_docs: "View Docs",
+    hero_free: "Free & Open Source — Windows",
+    features_label: "Features",
+    features_title: "Everything you need to build the perfect dashboard",
+    feat1_title: "Drag & Drop Editor",
+    feat1_desc: "Add, position, and resize dashboard elements visually. Design complex layouts without touching a single line of code.",
+    feat2_title: "Live Telemetry Preview",
+    feat2_desc: "Connect directly to the ETS2/ATS telemetry server and see your dashboard update in real-time as you drive in the simulator.",
+    feat3_title: "3D Model Viewer",
+    feat3_desc: "Apply your dashboard design to a UV-mapped 3D truck model and preview how it will look in-game before exporting.",
+    feat4_title: "Custom SVG Support",
+    feat4_desc: "Import your own vector graphics and manipulate their paths, colors, and transformations dynamically based on game telemetry data.",
+    feat5_title: "One-Click Mod Export",
+    feat5_desc: "Export your dashboard as a game-ready mod ZIP with a single click. No manual file wrangling — just create and ship.",
+    feat6_title: "Full Undo / Redo",
+    feat6_desc: "Every action is tracked. Experiment freely knowing you can always step back to any previous state with unlimited history.",
+    patreon_title: "Support the Journey",
+    patreon_desc: "This project is a labor of love for the ETS2 & ATS community. If the editor helps you create the dashboard of your dreams, consider supporting its development on Patreon. Every contribution helps keep the updates rolling.",
+    patreon_btn: "Support on Patreon",
+    patreon_github: "View on GitHub",
+    footer_copy: "© 2025 ETS2 DASHBOARD EDITOR. BUILT FOR PRECISION.",
+    footer_docs: "Documentation",
+    footer_changelog: "Changelog",
+    footer_patreon: "Patreon",
+    footer_github: "GitHub"
+  },
+  tr: {
+    nav_features: "Özellikler",
+    nav_showcase: "Galeri",
+    nav_docs: "Dökümantasyon",
+    nav_community: "Topluluk",
+    nav_patreon: "Patreon'da Destek Ol",
+    nav_download: "İndir",
+    hero_badge: "v0.1.0 — Yayında",
+    hero_title_1: "Her pikselde",
+    hero_title_2: "mükemmellik.",
+    hero_desc: "Euro Truck Simulator 2 için özel telemetri gösterge panoları oluşturmaya yönelik en kapsamlı görsel editör. Sürüş deneyiminin her detayını kontrol etmek isteyen yaratıcılar için tasarlandı.",
+    hero_download: "Şimdi İndir",
+    hero_docs: "Dökümantasyon",
+    hero_free: "Ücretsiz & Açık Kaynak — Windows",
+    features_label: "Özellikler",
+    features_title: "Mükemmel bir gösterge paneli oluşturmak için ihtiyacınız olan her şey",
+    feat1_title: "Sürükle & Bırak Editör",
+    feat1_desc: "Dashboard elemanlarını görsel olarak ekle, konumlandır ve yeniden boyutlandır. Tek satır kod yazmadan karmaşık düzenler tasarla.",
+    feat2_title: "Canlı Telemetri Önizlemesi",
+    feat2_desc: "ETS2/ATS telemetri sunucusuna doğrudan bağlan ve simülatörde sürerken gösterge panosu değişikliklerini gerçek zamanlı gör.",
+    feat3_title: "3D Model Görüntüleyici",
+    feat3_desc: "Tasarımını UV haritalı 3D bir kamyon modeline uygula ve oyun içinde nasıl görüneceğini dışa aktarmadan önce önizle.",
+    feat4_title: "Özel SVG Desteği",
+    feat4_desc: "Kendi vektör grafiklerini içe aktar; yollarını, renklerini ve dönüşümlerini oyun telemetri verilerine göre dinamik olarak değiştir.",
+    feat5_title: "Tek Tıkla Mod Dışa Aktarma",
+    feat5_desc: "Gösterge panosunu tek tıklamayla oyuna hazır mod ZIP olarak dışa aktar. Manuel dosya uğraşı yok — sadece oluştur ve paylaş.",
+    feat6_title: "Sınırsız Geri Al / Yinele",
+    feat6_desc: "Her işlem kaydedilir. Sınırsız geçmiş sayesinde istediğin önceki duruma geri döneceğini bilerek özgürce denemeler yap.",
+    patreon_title: "Gelişimi Destekle",
+    patreon_desc: "Bu proje ETS2 & ATS topluluğuna olan sevgiyle yapılmıştır. Editör, hayalindeki gösterge panosunu oluşturmana yardımcı olduysa Patreon'da geliştirmeyi desteklemeyi düşün. Her katkı güncellemelerin devam etmesini sağlar.",
+    patreon_btn: "Patreon'da Destek Ol",
+    patreon_github: "GitHub'da Görüntüle",
+    footer_copy: "© 2025 ETS2 DASHBOARD EDITOR. HASSASLIK İÇİN YAPILDI.",
+    footer_docs: "Dökümantasyon",
+    footer_changelog: "Değişiklik Günlüğü",
+    footer_patreon: "Patreon",
+    footer_github: "GitHub"
+  }
+};
+
+function setLang(lang) {
+  localStorage.setItem('lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-tr').classList.toggle('active', lang === 'tr');
+  document.getElementById('btn-en').style.color = lang === 'en' ? '#0099ff' : 'rgba(255,255,255,0.6)';
+  document.getElementById('btn-tr').style.color = lang === 'tr' ? '#0099ff' : 'rgba(255,255,255,0.6)';
+  document.documentElement.lang = lang;
+}
+
+(function() {
+  const saved = localStorage.getItem('lang') || 'en';
+  setLang(saved);
+})();
+</script>
+</body>
+</html>

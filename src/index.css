@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  -webkit-user-select: none;
+  user-select: none;
+}
+input,
+textarea,
+.cm-editor,
+.cm-content,
+[contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}

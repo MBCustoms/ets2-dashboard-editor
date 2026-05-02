@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Documentation - ETS2 Dashboard Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme:{
+      extend:{
+        colors:{
+          "outline":"#89919e","secondary-container":"#454747","primary-container":"#0099ff",
+          "ghost-white":"rgba(255,255,255,0.6)","on-error-container":"#ffdad6",
+          "surface-container-highest":"#31353c","error":"#ffb4ab","tertiary":"#ffb785",
+          "near-black":"#090909","surface-container-low":"#171c22","surface-container-high":"#262a31",
+          "primary-fixed-dim":"#9fcaff","on-error":"#690005","on-tertiary-container":"#4b2200",
+          "blue-glow":"rgba(0,153,255,0.15)","on-primary-fixed-variant":"#00497e",
+          "surface-bright":"#353940","on-background":"#dfe2eb","on-tertiary-fixed":"#301400",
+          "on-surface":"#dfe2eb","inverse-surface":"#dfe2eb","surface-tint":"#9fcaff",
+          "secondary":"#c6c6c7","on-secondary-fixed":"#1a1c1c","inverse-primary":"#0061a5",
+          "on-primary":"#003259","secondary-fixed-dim":"#c6c6c7","surface-dim":"#0f141a",
+          "frosted-white":"rgba(255,255,255,0.1)","background":"#0f141a",
+          "on-secondary-container":"#b4b5b5","inverse-on-surface":"#2c3137",
+          "tertiary-fixed":"#ffdcc6","primary":"#9fcaff","secondary-fixed":"#e2e2e2",
+          "surface-container":"#1b2026","on-tertiary":"#502500","on-primary-fixed":"#001d36",
+          "void-black":"#000000","outline-variant":"#3f4753","surface":"#0f141a",
+          "on-tertiary-fixed-variant":"#713700","muted-silver":"#a6a6a6",
+          "tertiary-fixed-dim":"#ffb785","tertiary-container":"#e77600","primary-fixed":"#d2e4ff",
+          "surface-variant":"#31353c","surface-container-lowest":"#0a0e14",
+          "on-secondary":"#2f3131","on-surface-variant":"#bfc7d5",
+          "subtle-white":"rgba(255,255,255,0.5)","on-secondary-fixed-variant":"#454747",
+          "on-primary-container":"#002f54","error-container":"#93000a"
+        },
+        borderRadius:{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},
+        spacing:{
+          "section-gap":"120px","container-max":"1200px",
+          "xs":"4px","sm":"12px","lg":"35px","md":"20px","base":"8px"
+        },
+        fontFamily:{
+          "card-title":["Inter","sans-serif"],"label-micro":["Inter","sans-serif"],
+          "feature-heading":["Space Grotesk","sans-serif"],"section-display":["Space Grotesk","sans-serif"],
+          "micro-uppercase":["Inter","sans-serif"],"display-hero":["Space Grotesk","sans-serif"],
+          "body-ui":["Inter","sans-serif"],"body-large":["Inter","sans-serif"]
+        },
+        fontSize:{
+          "card-title":["24px",{"lineHeight":"1.30","letterSpacing":"-0.01px","fontWeight":"400"}],
+          "label-micro":["13px",{"lineHeight":"1.60","letterSpacing":"normal","fontWeight":"500"}],
+          "feature-heading":["32px",{"lineHeight":"1.13","letterSpacing":"-1px","fontWeight":"500"}],
+          "section-display":["85px",{"lineHeight":"0.95","letterSpacing":"-4.25px","fontWeight":"500"}],
+          "micro-uppercase":["7px",{"lineHeight":"1.00","letterSpacing":"0.21px","fontWeight":"400"}],
+          "display-hero":["110px",{"lineHeight":"0.85","letterSpacing":"-5.5px","fontWeight":"500"}],
+          "body-ui":["15px",{"lineHeight":"1.00","letterSpacing":"-0.15px","fontWeight":"400"}],
+          "body-large":["18px",{"lineHeight":"1.30","letterSpacing":"-0.01px","fontWeight":"400"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #000; }
+  .lang-btn { cursor:pointer; transition:all 0.2s; }
+  .prose-doc p { margin-bottom: 0.75rem; line-height: 1.7; }
+  .prose-doc li { line-height: 1.7; }
+  /* Smooth scroll */
+  html { scroll-behavior: smooth; }
+  /* Sticky section highlight */
+  .doc-section { scroll-margin-top: 7rem; }
+  /* Sidebar active link */
+  .sidebar-link { transition: color 0.2s; }
+  .sidebar-link.is-active { color: #0099ff !important; }
+  /* Code block */
+  .code-block {
+    background: #0a0e14;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    font-family: 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #bfc7d5;
+    overflow-x: auto;
+  }
+  .code-block .kw  { color: #0099ff; }
+  .code-block .str { color: #ffb4ab; }
+  .code-block .num { color: #ffb785; }
+  .code-block .cmt { color: rgba(255,255,255,0.3); }
+  /* Callout boxes */
+  .callout-tip  { border-left: 3px solid #0099ff; background: rgba(0,153,255,0.07); padding: 1rem 1.25rem; border-radius: 0 0.75rem 0.75rem 0; }
+  .callout-warn { border-left: 3px solid #ffb785; background: rgba(255,183,133,0.07); padding: 1rem 1.25rem; border-radius: 0 0.75rem 0.75rem 0; }
+  .callout-note { border-left: 3px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); padding: 1rem 1.25rem; border-radius: 0 0.75rem 0.75rem 0; }
+  /* Table */
+  .doc-table { width:100%; border-collapse:collapse; font-size:14px; }
+  .doc-table th { text-align:left; padding:0.6rem 1rem; background:rgba(0,153,255,0.1); color:#9fcaff; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; border-bottom:1px solid rgba(255,255,255,0.1); }
+  .doc-table td { padding:0.6rem 1rem; border-bottom:1px solid rgba(255,255,255,0.05); color:#bfc7d5; vertical-align:top; }
+  .doc-table tr:hover td { background:rgba(255,255,255,0.03); }
+  .kbd { display:inline-block; padding:2px 7px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:5px; font-family:monospace; font-size:12px; color:#dfe2eb; }
+  /* Step number */
+  .step-num { width:28px; height:28px; min-width:28px; border-radius:50%; background:#0099ff; color:#000; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body class="bg-void-black text-on-surface min-h-screen flex flex-col font-body-ui text-body-ui antialiased">
+
+<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
+<nav class="fixed top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl rounded-full border border-white/10 bg-black/70 backdrop-blur-xl flex justify-between items-center px-6 py-3 z-[100] shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+  <a href="index.html" class="text-lg font-black tracking-tighter text-white uppercase font-['Space_Grotesk']">ETS2 DASHBOARD EDITOR</a>
+  <div class="hidden md:flex items-center gap-6 font-['Space_Grotesk'] tracking-tighter leading-none">
+    <a class="text-white/60 hover:text-white hover:scale-95 transition-all duration-200" href="index.html#features" data-i18n="nav_features">Features</a>
+    <a class="text-white/60 hover:text-white hover:scale-95 transition-all duration-200" href="index.html#showcase" data-i18n="nav_showcase">Showcase</a>
+    <a class="text-[#0099ff]" href="documentation.html" data-i18n="nav_docs">Docs</a>
+    <a class="text-white/60 hover:text-white hover:scale-95 transition-all duration-200" href="index.html#community" data-i18n="nav_community">Community</a>
+  </div>
+  <div class="flex items-center gap-3">
+    <div class="hidden md:flex items-center gap-1 border border-white/10 rounded-full px-2 py-1">
+      <button onclick="setLang('en')" id="btn-en" class="lang-btn text-xs font-['Space_Grotesk'] font-semibold px-2 py-0.5 rounded-full text-white/60">EN</button>
+      <span class="text-white/20 text-xs">|</span>
+      <button onclick="setLang('tr')" id="btn-tr" class="lang-btn text-xs font-['Space_Grotesk'] font-semibold px-2 py-0.5 rounded-full text-white/60">TR</button>
+    </div>
+    <a href="https://github.com/MBCustoms/ets2-dashboard-editor/releases/latest" target="_blank"
+       class="bg-white text-void-black px-6 py-2 rounded-full font-label-micro text-label-micro hover:scale-95 active:scale-90 transition-transform font-['Space_Grotesk']"
+       data-i18n="nav_download">Download</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ LAYOUT ═══════════════════════ -->
+<div class="flex flex-1 pt-28 pb-20 w-full max-w-[1400px] mx-auto px-4 md:px-6 gap-0 md:gap-10">
+
+  <!-- ── SIDEBAR ── -->
+  <aside id="doc-sidebar" class="w-56 hidden md:flex flex-col gap-6 shrink-0 sticky top-28 h-[calc(100vh-8rem)] overflow-y-auto pr-4 border-r border-white/5 text-[13px]">
+    <div>
+      <p class="uppercase tracking-[0.15em] text-[10px] text-white/30 font-['Space_Grotesk'] mb-3" data-i18n="sb_start">Getting Started</p>
+      <ul class="flex flex-col gap-2">
+        <li><a href="#intro"         class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_intro">Introduction</a></li>
+        <li><a href="#install"       class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_install">Installation</a></li>
+        <li><a href="#first-launch"  class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_first">First Launch</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="uppercase tracking-[0.15em] text-[10px] text-white/30 font-['Space_Grotesk'] mb-3" data-i18n="sb_interface">Interface</p>
+      <ul class="flex flex-col gap-2">
+        <li><a href="#ui-overview"   class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_ui">UI Overview</a></li>
+        <li><a href="#canvas"        class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_canvas">Canvas Editor</a></li>
+        <li><a href="#sidebar-tabs"  class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_sidetabs">Left Sidebar Tabs</a></li>
+        <li><a href="#inspector"     class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_inspector">Inspector Panel</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="uppercase tracking-[0.15em] text-[10px] text-white/30 font-['Space_Grotesk'] mb-3" data-i18n="sb_elements">Elements</p>
+      <ul class="flex flex-col gap-2">
+        <li><a href="#element-types" class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_types">Element Types</a></li>
+        <li><a href="#add-element"   class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_add">Adding Elements</a></li>
+        <li><a href="#telemetry"     class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_telem">Telemetry Binding</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="uppercase tracking-[0.15em] text-[10px] text-white/30 font-['Space_Grotesk'] mb-3" data-i18n="sb_advanced">Advanced</p>
+      <ul class="flex flex-col gap-2">
+        <li><a href="#3d-viewer"     class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_3d">3D Viewer</a></li>
+        <li><a href="#screens"       class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_screens">Screens</a></li>
+        <li><a href="#export"        class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_export">Export Mod</a></li>
+        <li><a href="#import-sii"    class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_import">Import SII</a></li>
+        <li><a href="#shortcuts"     class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_shortcuts">Keyboard Shortcuts</a></li>
+        <li><a href="#settings"      class="sidebar-link text-on-surface-variant hover:text-white" data-i18n="sb_settings">Settings</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="flex-1 min-w-0 flex flex-col gap-16 prose-doc pl-0 md:pl-4">
+
+    <!-- breadcrumb -->
+    <div class="flex items-center gap-2 text-primary-container font-label-micro text-label-micro -mb-10 mt-4">
+      <span class="material-symbols-outlined text-[16px]">article</span>
+      <span data-i18n="breadcrumb">Documentation</span>
+    </div>
+
+    <!-- ══════════════ 1. INTRO ══════════════ -->
+    <section id="intro" class="doc-section flex flex-col gap-5">
+      <h1 class="font-['Space_Grotesk'] text-[52px] font-semibold leading-none tracking-tight text-white" data-i18n="intro_h1">Introduction.</h1>
+      <p class="text-ghost-white text-body-large font-body-large leading-relaxed max-w-2xl" data-i18n="intro_p1">
+        ETS2 Dashboard Editor is a visual desktop application for designing custom digital dashboard mods for <strong class="text-white">Euro Truck Simulator 2</strong> and <strong class="text-white">American Truck Simulator</strong>. Built with Tauri and React, it gives you a professional-grade editor — no coding required.
+      </p>
+      <div class="callout-tip">
+        <p class="text-primary-container font-semibold text-sm mb-1" data-i18n="intro_tip_title">What is a dashboard mod?</p>
+        <p class="text-subtle-white text-sm" data-i18n="intro_tip_body">A dashboard mod replaces the in-game instrument cluster with a custom design. You can reposition gauges, add indicator lights, show live telemetry data, and completely change the look of the cockpit.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 2. INSTALL ══════════════ -->
+    <section id="install" class="doc-section flex flex-col gap-6">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="install_h2">Installation</h2>
+
+      <div class="flex flex-col gap-5">
+        <!-- step 1 -->
+        <div class="flex items-start gap-4 bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <div class="step-num">1</div>
+          <div>
+            <p class="text-white font-semibold text-sm mb-1" data-i18n="inst1_title">Download the Installer</p>
+            <p class="text-subtle-white text-sm" data-i18n="inst1_body">Go to the <a href="https://github.com/MBCustoms/ets2-dashboard-editor/releases/latest" target="_blank" class="text-primary-container font-semibold text-sm mb-1 hover:underline">GitHub Releases</a> page and download the latest <code class="text-primary-container bg-black/40 px-1 rounded">.msi</code> installer for Windows.</p>
+          </div>
+        </div>
+        <!-- step 2 -->
+        <div class="flex items-start gap-4 bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <div class="step-num">2</div>
+          <div>
+            <p class="text-white font-semibold text-sm mb-1" data-i18n="inst2_title">Install the Telemetry Plugin</p>
+            <p class="text-subtle-white text-sm" data-i18n="inst2_body">For live data, install the SCS Telemetry SDK plugin. Copy the plugin DLL into your game's <code class="text-primary-container bg-black/40 px-1 rounded">bin/win_x64/plugins/</code> folder. Alternatively, use <strong class="text-white">View → Settings → Install Plugin</strong> inside the editor.</p>
+          </div>
+        </div>
+        <!-- step 3 -->
+        <div class="flex items-start gap-4 bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <div class="step-num">3</div>
+          <div>
+            <p class="text-white font-semibold text-sm mb-1" data-i18n="inst3_title">Set Game Root Path</p>
+            <p class="text-subtle-white text-sm" data-i18n="inst3_body">Open <strong class="text-white">View → Settings</strong> and set the <em>Game Root Path</em> to your ETS2/ATS installation folder (e.g., <code class="text-primary-container bg-black/40 px-1 rounded">C:\Program Files (x86)\Steam\steamapps\common\Euro Truck Simulator 2</code>). This lets the editor find game textures and fonts.</p>
+          </div>
+        </div>
+        <!-- step 4 -->
+        <div class="flex items-start gap-4 bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <div class="step-num">4</div>
+          <div>
+            <p class="text-white font-semibold text-sm mb-1" data-i18n="inst4_title">Launch &amp; Create a Project</p>
+            <p class="text-subtle-white text-sm" data-i18n="inst4_body">Run the editor, then choose <strong class="text-white">File → New</strong> to start a blank project, or <strong class="text-white">File → Open</strong> to load an existing <code class="text-primary-container bg-black/40 px-1 rounded">.ets2dash</code> project file.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout-warn">
+        <p class="text-tertiary font-semibold text-sm mb-1" data-i18n="inst_warn_title">Windows Only</p>
+        <p class="text-subtle-white text-sm" data-i18n="inst_warn_body">Version 0.1.0 supports Windows only. macOS and Linux builds are planned for a future release.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 3. FIRST LAUNCH ══════════════ -->
+    <section id="first-launch" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="fl_h2">First Launch</h2>
+      <p class="text-subtle-white text-sm" data-i18n="fl_p1">When you first open the editor you will see three main panels: the <strong class="text-white">Left Sidebar</strong>, the <strong class="text-white">Canvas</strong> in the centre, and the <strong class="text-white">Inspector</strong> on the right. The top bar contains all file and edit commands.</p>
+      <div class="callout-tip">
+        <p class="text-subtle-white text-sm" data-i18n="fl_tip">Tip: drag any element from the <strong class="text-white">Library</strong> tab in the left sidebar and drop it onto the canvas to quickly add a preset dashboard element.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 4. UI OVERVIEW ══════════════ -->
+    <section id="ui-overview" class="doc-section flex flex-col gap-6">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="ui_h2">UI Overview</h2>
+      <p class="text-subtle-white text-sm" data-i18n="ui_p1">The editor is divided into five zones:</p>
+
+      <div class="rounded-xl overflow-hidden border border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)] ring-1 ring-[rgba(0,153,255,0.15)] bg-[#0a0e14] p-2">
+        <img
+          alt="ETS2 Dashboard Editor interface"
+          class="w-full h-auto rounded-lg block"
+          src="https://lh3.googleusercontent.com/aida/ADBb0ug-V5OfMJEoaNVkzIwmGp3ugWwaaB-8jBSpwgOo9J1WBrw52PVppgdWESYqlKh_fbtoJc_pvQLM7QA7hgfKqiDptqjSyZ8L1gQIKmeX6XvS3zaAdupcSzH35lKvEjiVM2t4IO7jvqVyUA_j1KDRScMd5ri1LDdSeJ-86QnSRlWQV2Udj-BIgRs6RxamHMepkBDb4lipnS2_Idb3e1GXbk1vlswJ86VLSqsnkyyEz5Mxici-SUXvfSoc9djK_MLV2xapx0I5FqTPFKs"
+        />
+      </div>
+
+      <table class="doc-table">
+        <thead><tr>
+          <th data-i18n="ui_col_zone">Zone</th>
+          <th data-i18n="ui_col_desc">Description</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="text-white" data-i18n="ui_z1">Header Bar</td><td data-i18n="ui_z1d">File operations, Edit history (Undo/Redo with 10-entry tooltip), screen selector, and grid controls.</td></tr>
+          <tr><td class="text-white" data-i18n="ui_z2">Canvas Toolbar</td><td data-i18n="ui_z2d">Zoom controls, layer ordering, alignment / distribution tools, wireframe/collision toggles, view mode switcher (2D / 3D / Split).</td></tr>
+          <tr><td class="text-white" data-i18n="ui_z3">Left Sidebar</td><td data-i18n="ui_z3d">Five tabs: Screens, Library, Templates, Files, Telemetry. Below the tabs sits the Layers panel showing the element hierarchy.</td></tr>
+          <tr><td class="text-white" data-i18n="ui_z4">Canvas</td><td data-i18n="ui_z4d">The interactive editing area. Supports pan, zoom, multi-select, drag-and-drop, and live telemetry preview.</td></tr>
+          <tr><td class="text-white" data-i18n="ui_z5">Inspector</td><td data-i18n="ui_z5d">Context-sensitive panel showing identity, layout, data binding, appearance, and element-specific settings for the selected element.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════ 5. CANVAS ══════════════ -->
+    <section id="canvas" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="canvas_h2">Canvas Editor</h2>
+      <p class="text-subtle-white text-sm" data-i18n="canvas_p1">The canvas is your main design surface. It renders the dashboard in real time using <strong class="text-white">Pixi.js</strong>.</p>
+
+      <h3 class="text-white font-semibold text-base mt-2" data-i18n="canvas_nav_h3">Navigation</h3>
+      <table class="doc-table">
+        <thead><tr><th data-i18n="canvas_act">Action</th><th data-i18n="canvas_how">How</th></tr></thead>
+        <tbody>
+          <tr><td data-i18n="canvas_pan">Pan</td>         <td data-i18n="canvas_pan_h">Hold middle mouse button and drag, or hold Space + left drag</td></tr>
+          <tr><td data-i18n="canvas_zoom">Zoom</td>       <td data-i18n="canvas_zoom_h">Mouse wheel, or use the zoom slider / buttons in the Canvas Toolbar</td></tr>
+          <tr><td data-i18n="canvas_fit">Fit to window</td><td data-i18n="canvas_fit_h">Click the <strong class="text-white">Fit</strong> button in the Canvas Toolbar</td></tr>
+          <tr><td data-i18n="canvas_100">100% zoom</td>   <td data-i18n="canvas_100_h">Click the zoom percentage display in the Canvas Toolbar</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="text-white font-semibold text-base mt-4" data-i18n="canvas_sel_h3">Selection</h3>
+      <table class="doc-table">
+        <thead><tr><th data-i18n="canvas_act">Action</th><th data-i18n="canvas_how">How</th></tr></thead>
+        <tbody>
+          <tr><td data-i18n="sel_single">Select single element</td>   <td data-i18n="sel_single_h">Left-click on element</td></tr>
+          <tr><td data-i18n="sel_multi">Add to selection</td>         <td data-i18n="sel_multi_h"><span class="kbd">Ctrl</span> + click</td></tr>
+          <tr><td data-i18n="sel_box">Box select</td>                  <td data-i18n="sel_box_h">Click and drag on empty canvas area</td></tr>
+          <tr><td data-i18n="sel_all">Select all</td>                  <td data-i18n="sel_all_h"><span class="kbd">Ctrl</span>+<span class="kbd">A</span></td></tr>
+          <tr><td data-i18n="sel_clear">Deselect</td>                  <td data-i18n="sel_clear_h"><span class="kbd">Escape</span> or click empty area</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="text-white font-semibold text-base mt-4" data-i18n="canvas_grid_h3">Grid &amp; Snap</h3>
+      <p class="text-subtle-white text-sm" data-i18n="canvas_grid_p">Enable <strong class="text-white">Show Grid</strong> and <strong class="text-white">Snap to Grid</strong> from the Header Bar. Grid size is configurable from 2 to 100 units. When snap is on, every move and resize locks to the nearest grid line.</p>
+
+      <h3 class="text-white font-semibold text-base mt-4" data-i18n="canvas_align_h3">Alignment &amp; Distribution</h3>
+      <p class="text-subtle-white text-sm" data-i18n="canvas_align_p">Select <strong class="text-white">2 or more</strong> elements and use the alignment buttons in the Canvas Toolbar to align edges or centres. Select <strong class="text-white">3 or more</strong> to distribute them with equal spacing.</p>
+    </section>
+
+    <!-- ══════════════ 6. LEFT SIDEBAR TABS ══════════════ -->
+    <section id="sidebar-tabs" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="sidetabs_h2">Left Sidebar Tabs</h2>
+
+      <div class="flex flex-col gap-4">
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <p class="text-white font-semibold text-sm mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">layers</span>
+            <span data-i18n="tab_screens">Screens</span>
+          </p>
+          <p class="text-subtle-white text-sm" data-i18n="tab_screens_desc">Lists all dashboard screens in the project (e.g. Screen 100, Shared 950, Warning 900). Click a screen to switch to it. Use the <strong class="text-white">+</strong> button to add a new screen with a unique ID.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <p class="text-white font-semibold text-sm mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">widgets</span>
+            <span data-i18n="tab_library">Library</span>
+          </p>
+          <p class="text-subtle-white text-sm" data-i18n="tab_library_desc">Contains 50+ ready-made element presets organised into categories: <em>Backgrounds</em>, <em>Text Indicators</em>, <em>Bars</em>, <em>Gauges</em>, and <em>Icons</em>. Drag any preset onto the canvas to add it instantly. Each preset already has the correct dashboard ID and default value set.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <p class="text-white font-semibold text-sm mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">text_fields</span>
+            <span data-i18n="tab_templates">Templates</span>
+          </p>
+          <p class="text-subtle-white text-sm" data-i18n="tab_templates_desc">Manages SII text templates used by <em>textCommon</em> elements. Templates define the display format with <code class="text-primary-container">%0</code>, <code class="text-primary-container">%1</code> placeholders. You can import additional templates from an existing <code class="text-primary-container">.sii</code> file via <strong class="text-white">File → Import templates…</strong></p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <p class="text-white font-semibold text-sm mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">folder</span>
+            <span data-i18n="tab_files">Files</span>
+          </p>
+          <p class="text-subtle-white text-sm" data-i18n="tab_files_desc">Shows the project files tree — textures, materials, and fonts referenced by the project. Useful for checking which assets are included in the mod export.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <p class="text-white font-semibold text-sm mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">sensors</span>
+            <span data-i18n="tab_telemetry">Telemetry</span>
+          </p>
+          <p class="text-subtle-white text-sm" data-i18n="tab_telemetry_desc">Shows the live connection status to the SCS SDK. When the game is not running, switch to <strong class="text-white">Simulation Mode</strong> to test your dashboard with adjustable sliders and toggles for each telemetry channel.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5">
+          <p class="text-white font-semibold text-sm mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">stacks</span>
+            <span data-i18n="tab_layers">Layers Panel</span>
+          </p>
+          <p class="text-subtle-white text-sm" data-i18n="tab_layers_desc">Located below the tab list. Displays the full element hierarchy as a tree. Click an item to select it, click the eye icon to toggle visibility, and drag items to reorder layers.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ 7. INSPECTOR ══════════════ -->
+    <section id="inspector" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="insp_h2">Inspector Panel</h2>
+      <p class="text-subtle-white text-sm" data-i18n="insp_p1">The Inspector on the right side of the screen shows all editable properties of the currently selected element. It is divided into sections:</p>
+
+      <table class="doc-table">
+        <thead><tr><th data-i18n="insp_col_sec">Section</th><th data-i18n="insp_col_desc">Contents</th></tr></thead>
+        <tbody>
+          <tr><td class="text-white" data-i18n="insp_identity">Identity</td>         <td data-i18n="insp_identity_d">Unit name, element type, parent name, visibility toggle.</td></tr>
+          <tr><td class="text-white" data-i18n="insp_layout">Layout</td>             <td data-i18n="insp_layout_d">Position (Left, Right, Top, Bottom in SCS units), layer number for draw order.</td></tr>
+          <tr><td class="text-white" data-i18n="insp_binding">Data Binding</td>      <td data-i18n="insp_binding_d">Dashboard ID selector, default value field (pipe-separated, e.g. <code class="text-primary-container">88|km/h</code>), and telemetry preset shortcuts.</td></tr>
+          <tr><td class="text-white" data-i18n="insp_appear">Appearance</td>         <td data-i18n="insp_appear_d">Look template selector, SCS colour picker, text content editor with markup support. <em>(text / textCommon only)</em></td></tr>
+          <tr><td class="text-white" data-i18n="insp_bar">Bar Settings</td>          <td data-i18n="insp_bar_d">Min/max value, min/max fill size, vertical orientation toggle, live test slider. <em>(textBar only)</em></td></tr>
+          <tr><td class="text-white" data-i18n="insp_gauge">Gauge Settings</td>      <td data-i18n="insp_gauge_d">Min/max angle, value range (input min/max), pivot offset, reference point, material path, smooth move toggle. <em>(gauge only)</em></td></tr>
+          <tr><td class="text-white" data-i18n="insp_group">Group Settings</td>      <td data-i18n="insp_group_d">Suppress fitting flag, group text content. <em>(group only)</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════ 8. ELEMENT TYPES ══════════════ -->
+    <section id="element-types" class="doc-section flex flex-col gap-6">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="et_h2">Element Types</h2>
+      <p class="text-subtle-white text-sm" data-i18n="et_p1">The editor supports 6 core element types. Every preset in the Library is built from one of these types:</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">window</span>
+            <p class="text-white font-semibold text-sm">window</p>
+          </div>
+          <p class="text-subtle-white text-sm" data-i18n="et_window">The root container element of a screen. Usually a full-screen background or invisible bounding element. Every screen has at least one window.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">folder_open</span>
+            <p class="text-white font-semibold text-sm">group</p>
+          </div>
+          <p class="text-subtle-white text-sm" data-i18n="et_group">Organises related elements. Moving or hiding a group affects all its children. Used to build indicator clusters or gauge assemblies.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">text_fields</span>
+            <p class="text-white font-semibold text-sm">text</p>
+          </div>
+          <p class="text-subtle-white text-sm" data-i18n="et_text">A static or dynamic text label. Supports SCS markup for inline colour, images, and sprite icons. Used for labels and unit annotations.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">data_object</span>
+            <p class="text-white font-semibold text-sm">textCommon</p>
+          </div>
+          <p class="text-subtle-white text-sm" data-i18n="et_textcommon">A telemetry-driven text display bound to a dashboard ID. Uses look templates (SII text_template definitions) to format values — e.g., displaying speed with a unit suffix.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">show_chart</span>
+            <p class="text-white font-semibold text-sm">textBar</p>
+          </div>
+          <p class="text-subtle-white text-sm" data-i18n="et_textbar">A fill-bar gauge. Its length scales linearly between a min and max value. Can be horizontal or vertical. Commonly used for fuel, air pressure, turbo boost, and similar gauges.</p>
+        </div>
+        <div class="bg-surface-container-lowest border border-white/5 rounded-xl p-5 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary-container text-[18px]">speed</span>
+            <p class="text-white font-semibold text-sm">gauge</p>
+          </div>
+          <p class="text-subtle-white text-sm" data-i18n="et_gauge">A rotating pointer gauge. You define the start/end angles and the corresponding value range. The needle rotates smoothly (with optional smooth-move interpolation) to reflect the live value.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ 9. ADDING ELEMENTS ══════════════ -->
+    <section id="add-element" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="add_h2">Adding Elements</h2>
+
+      <h3 class="text-white font-semibold text-base" data-i18n="add_dnd_h3">Method 1 — Drag from Library</h3>
+      <ol class="flex flex-col gap-2 ml-4">
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="add_dnd1">Open the <strong class="text-white">Library</strong> tab in the left sidebar.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="add_dnd2">Browse the categories (Backgrounds, Text Indicators, Bars, Gauges, Icons).</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="add_dnd3">Drag the desired preset onto the canvas. It is placed at the drop position with default values pre-filled.</li>
+      </ol>
+
+      <h3 class="text-white font-semibold text-base mt-2" data-i18n="add_copy_h3">Method 2 — Copy &amp; Paste</h3>
+      <p class="text-subtle-white text-sm" data-i18n="add_copy_p">Select any element, press <span class="kbd">Ctrl</span>+<span class="kbd">C</span> to copy, then <span class="kbd">Ctrl</span>+<span class="kbd">V</span> to paste. The copy is offset by +10 SCS units from the original. Use <span class="kbd">Ctrl</span>+<span class="kbd">D</span> to duplicate in a single action.</p>
+
+      <div class="callout-note">
+        <p class="text-subtle-white text-sm" data-i18n="add_note">After adding an element, select it and use the <strong class="text-white">Inspector → Layout</strong> section to enter precise coordinates. Position values are in SCS screen units (the default canvas is 800 × 800 units).</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 10. TELEMETRY ══════════════ -->
+    <section id="telemetry" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="telem_h2">Telemetry Binding</h2>
+      <p class="text-subtle-white text-sm" data-i18n="telem_p1">Each element is connected to the game through a <strong class="text-white">Dashboard ID</strong> — a numeric identifier that maps to a specific telemetry channel (speed, RPM, fuel, indicator lights, etc.).</p>
+
+      <h3 class="text-white font-semibold text-base" data-i18n="telem_how_h3">How to Bind</h3>
+      <ol class="flex flex-col gap-2 ml-4">
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="telem_how1">Select an element on the canvas.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="telem_how2">In the Inspector, find the <strong class="text-white">Data Binding</strong> section.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="telem_how3">Choose a Dashboard ID from the dropdown, or type the ID directly. Use the preset shortcuts to quickly assign common channels.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="telem_how4">Set a <strong class="text-white">Default Value</strong> — this is what the element displays when no live data is available. For text elements use the pipe format: <code class="text-primary-container bg-black/40 px-1 rounded">88|km/h</code> (value | suffix).</li>
+      </ol>
+
+      <h3 class="text-white font-semibold text-base mt-2" data-i18n="telem_ids_h3">Common Telemetry IDs</h3>
+      <table class="doc-table">
+        <thead><tr><th>ID</th><th data-i18n="telem_col_ch">Channel</th><th data-i18n="telem_col_type">Type</th></tr></thead>
+        <tbody>
+          <tr><td class="text-primary-container">1020</td><td data-i18n="tid_speed">Speed</td><td data-i18n="tid_num">Number (km/h)</td></tr>
+          <tr><td class="text-primary-container">1040</td><td data-i18n="tid_gear">Gear</td><td data-i18n="tid_str">String</td></tr>
+          <tr><td class="text-primary-container">1060</td><td data-i18n="tid_fuel">Fuel Amount</td><td data-i18n="tid_num">Number (L)</td></tr>
+          <tr><td class="text-primary-container">1070</td><td data-i18n="tid_fuelbar">Fuel Bar</td><td data-i18n="tid_norm">0–1 (normalised)</td></tr>
+          <tr><td class="text-primary-container">1090</td><td data-i18n="tid_water">Water Temp</td><td data-i18n="tid_num">Number (°C)</td></tr>
+          <tr><td class="text-primary-container">1100</td><td data-i18n="tid_cruise">Cruise Speed</td><td data-i18n="tid_num">Number (km/h)</td></tr>
+          <tr><td class="text-primary-container">1430</td><td data-i18n="tid_speedo">Speed Gauge</td><td data-i18n="tid_num">Number (km/h)</td></tr>
+          <tr><td class="text-primary-container">1440</td><td data-i18n="tid_rpm">RPM Gauge</td><td data-i18n="tid_num">Number (rpm)</td></tr>
+          <tr><td class="text-primary-container">1200</td><td data-i18n="tid_park">Parking Brake</td><td data-i18n="tid_bool">Boolean (0/1)</td></tr>
+          <tr><td class="text-primary-container">1190</td><td data-i18n="tid_cruise2">Cruise Control Active</td><td data-i18n="tid_bool">Boolean (0/1)</td></tr>
+          <tr><td class="text-primary-container">1610</td><td data-i18n="tid_limit">Speed Limit</td><td data-i18n="tid_num">Number (km/h)</td></tr>
+          <tr><td class="text-primary-container">1050</td><td data-i18n="tid_clock">Clock</td><td data-i18n="tid_str">String (HH:MM)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="text-white font-semibold text-base mt-2" data-i18n="telem_sim_h3">Simulation Mode</h3>
+      <p class="text-subtle-white text-sm" data-i18n="telem_sim_p">When the game is not running, open the <strong class="text-white">Telemetry</strong> tab in the left sidebar and switch to <strong class="text-white">Simulation Mode</strong>. Each bound channel gets a slider or toggle that you can move to test how your dashboard responds to different values — without opening the game.</p>
+    </section>
+
+    <!-- ══════════════ 11. 3D VIEWER ══════════════ -->
+    <section id="3d-viewer" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="v3d_h2">3D Viewer</h2>
+      <p class="text-subtle-white text-sm" data-i18n="v3d_p1">The 3D Viewer lets you preview how your dashboard will look on the actual truck model inside the game. It uses <strong class="text-white">Three.js</strong> to render a GLTF/OBJ model with your dashboard design projected onto it via UV mapping.</p>
+
+      <h3 class="text-white font-semibold text-base" data-i18n="v3d_access_h3">Accessing the 3D Viewer</h3>
+      <p class="text-subtle-white text-sm" data-i18n="v3d_access_p">Use the view-mode buttons in the Canvas Toolbar:</p>
+      <table class="doc-table">
+        <thead><tr><th data-i18n="v3d_mode">Mode</th><th data-i18n="v3d_desc">Description</th></tr></thead>
+        <tbody>
+          <tr><td class="text-white">2D</td>       <td data-i18n="v3d_2d">Canvas-only view (default).</td></tr>
+          <tr><td class="text-white">3D</td>       <td data-i18n="v3d_3d">Full-screen 3D model viewer with your dashboard applied as a texture.</td></tr>
+          <tr><td class="text-white">2D | 3D</td>  <td data-i18n="v3d_split">Split view — edit in 2D on the left, see live 3D result on the right simultaneously.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="text-white font-semibold text-base mt-2" data-i18n="v3d_steps_h3">Loading a Model</h3>
+      <ol class="flex flex-col gap-2 ml-4">
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="v3d_s1">Switch to 3D or Split view.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="v3d_s2">Click <strong class="text-white">Load Model</strong> in the 3D panel and select a <code class="text-primary-container bg-black/40 px-1 rounded">.gltf</code> or <code class="text-primary-container bg-black/40 px-1 rounded">.obj</code> file.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="v3d_s3">The UV wireframe is extracted automatically and overlaid on the 3D mesh. Your current dashboard snapshot is rendered behind the wireframe.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="v3d_s4">Orbit the camera with left-drag, pan with right-drag, zoom with the scroll wheel.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="v3d_s5">Click <strong class="text-white">Download</strong> to export the UV + dashboard composite as a PNG image.</li>
+      </ol>
+
+      <div class="callout-tip">
+        <p class="text-subtle-white text-sm" data-i18n="v3d_tip">If the UV coordinates extend beyond [0, 1] (tiled UV), the editor will suggest resizing your canvas to match the UV aspect ratio for the best fit.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 12. SCREENS ══════════════ -->
+    <section id="screens" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="scr_h2">Screens</h2>
+      <p class="text-subtle-white text-sm" data-i18n="scr_p1">A dashboard mod can contain multiple named screens. Each screen has a unique numeric ID that ETS2/ATS uses to switch between them.</p>
+      <table class="doc-table">
+        <thead><tr><th data-i18n="scr_col_id">Screen ID</th><th data-i18n="scr_col_use">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td class="text-primary-container">100</td>    <td data-i18n="scr_100">Main dashboard (electricity on).</td></tr>
+          <tr><td class="text-primary-container">800</td>    <td data-i18n="scr_800">Standard dashboard variant.</td></tr>
+          <tr><td class="text-primary-container">900</td>    <td data-i18n="scr_900">Warning / alert overlay displayed on top of the main screen.</td></tr>
+          <tr><td class="text-primary-container">950</td>    <td data-i18n="scr_950">Shared screen — elements here appear on <em>all</em> other screens simultaneously.</td></tr>
+        </tbody>
+      </table>
+      <p class="text-subtle-white text-sm" data-i18n="scr_switch">Switch between screens using the dropdown in the Header Bar or by clicking a screen in the <strong class="text-white">Screens</strong> tab. When Screen 950 (Shared) is shown, its elements appear as a translucent overlay on whichever screen is active.</p>
+    </section>
+
+    <!-- ══════════════ 13. EXPORT ══════════════ -->
+    <section id="export" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="exp_h2">Exporting Your Mod</h2>
+
+      <h3 class="text-white font-semibold text-base" data-i18n="exp_zip_h3">Export as Mod ZIP</h3>
+      <p class="text-subtle-white text-sm" data-i18n="exp_zip_p">This is the primary export — it produces a ZIP file that can be dropped straight into your game's <code class="text-primary-container bg-black/40 px-1 rounded">mod/</code> folder.</p>
+      <ol class="flex flex-col gap-2 ml-4">
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="exp_zip1">Choose <strong class="text-white">File → Export mod…</strong></li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="exp_zip2">The editor runs a <strong class="text-white">validation check</strong> first. Errors (shown in red) must be resolved before exporting. Warnings (yellow) can be skipped.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="exp_zip3">Choose a save location and file name for the ZIP.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="exp_zip4">Click <strong class="text-white">Export</strong>. The backend generates <code class="text-primary-container bg-black/40 px-1 rounded">dashboard.sii</code>, <code class="text-primary-container bg-black/40 px-1 rounded">dashboard_text.{mod_id}.sii</code>, all referenced <code class="text-primary-container bg-black/40 px-1 rounded">.mat</code>, <code class="text-primary-container bg-black/40 px-1 rounded">.dds</code>, and <code class="text-primary-container bg-black/40 px-1 rounded">.font</code> files inside the ZIP.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="exp_zip5">Copy the ZIP into <code class="text-primary-container bg-black/40 px-1 rounded">%USERPROFILE%\Documents\Euro Truck Simulator 2\mod\</code> and enable it in the game's Mod Manager.</li>
+      </ol>
+
+      <h3 class="text-white font-semibold text-base mt-2" data-i18n="exp_png_h3">Export as PNG</h3>
+      <p class="text-subtle-white text-sm" data-i18n="exp_png_p">Click the <strong class="text-white">Export PNG</strong> button in the Canvas Toolbar to render the current screen to a high-resolution PNG using the actual game materials and fonts (requires Game Root Path to be set in Settings).</p>
+
+      <div class="callout-warn">
+        <p class="text-subtle-white text-sm" data-i18n="exp_warn">Make sure all asset paths in your project are reachable (either via Game Root Path or Mod Root Paths in Settings) before exporting, otherwise the validation step will report missing file errors.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 14. IMPORT SII ══════════════ -->
+    <section id="import-sii" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="imp_h2">Importing an Existing SII Dashboard</h2>
+      <p class="text-subtle-white text-sm" data-i18n="imp_p1">You can load any existing <code class="text-primary-container bg-black/40 px-1 rounded">dashboard.sii</code> file to edit it in the visual editor.</p>
+      <ol class="flex flex-col gap-2 ml-4">
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="imp_s1">Go to <strong class="text-white">File → Import SII…</strong></li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="imp_s2">Select your <code class="text-primary-container bg-black/40 px-1 rounded">dashboard.sii</code> file.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="imp_s3">Enter the <strong class="text-white">Mod ID</strong> — this is used to find the matching <code class="text-primary-container bg-black/40 px-1 rounded">dashboard_text.{mod_id}.sii</code> template file in the same directory.</li>
+        <li class="text-subtle-white text-sm list-decimal" data-i18n="imp_s4">Click <strong class="text-white">Import</strong>. The Rust backend parses the SII file, resolves all referenced materials and fonts, and opens the result as a new project.</li>
+      </ol>
+      <div class="callout-note">
+        <p class="text-subtle-white text-sm" data-i18n="imp_note">To import text templates only (without replacing the whole project), use <strong class="text-white">File → Import templates…</strong></p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 15. SHORTCUTS ══════════════ -->
+    <section id="shortcuts" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="kb_h2">Keyboard Shortcuts</h2>
+      <table class="doc-table">
+        <thead><tr><th data-i18n="kb_key">Shortcut</th><th data-i18n="kb_action">Action</th></tr></thead>
+        <tbody>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">N</span></td>     <td data-i18n="kb_new">New project</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">O</span></td>     <td data-i18n="kb_open">Open project</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">S</span></td>     <td data-i18n="kb_save">Save project</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">S</span></td> <td data-i18n="kb_saveas">Save as…</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">Z</span></td>     <td data-i18n="kb_undo">Undo</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">Y</span></td>     <td data-i18n="kb_redo">Redo</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">X</span></td>     <td data-i18n="kb_cut">Cut selected</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">C</span></td>     <td data-i18n="kb_copy">Copy selected</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">V</span></td>     <td data-i18n="kb_paste">Paste (offset +10 units)</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">D</span></td>     <td data-i18n="kb_dupe">Duplicate selected</td></tr>
+          <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">A</span></td>     <td data-i18n="kb_selall">Select all elements</td></tr>
+          <tr><td><span class="kbd">Delete</span> / <span class="kbd">Backspace</span></td> <td data-i18n="kb_del">Delete selected</td></tr>
+          <tr><td><span class="kbd">Escape</span></td>                              <td data-i18n="kb_esc">Deselect all</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════ 16. SETTINGS ══════════════ -->
+    <section id="settings" class="doc-section flex flex-col gap-5">
+      <h2 class="font-['Space_Grotesk'] text-[32px] font-semibold tracking-tight text-white" data-i18n="set_h2">Settings</h2>
+      <p class="text-subtle-white text-sm" data-i18n="set_p1">Open <strong class="text-white">View → Settings…</strong> to configure the editor.</p>
+      <table class="doc-table">
+        <thead><tr><th data-i18n="set_col">Setting</th><th data-i18n="set_desc">Description</th></tr></thead>
+        <tbody>
+          <tr><td class="text-white" data-i18n="set_gamepath">Game Root Path</td>    <td data-i18n="set_gamepath_d">Path to your ETS2 or ATS installation. Required for texture/font lookup and PNG export.</td></tr>
+          <tr><td class="text-white" data-i18n="set_modpaths">Mod Root Paths</td>    <td data-i18n="set_modpaths_d">Additional folders searched for assets before falling back to the game root. Add your mod workspace here.</td></tr>
+          <tr><td class="text-white" data-i18n="set_plugin">Install Plugin</td>      <td data-i18n="set_plugin_d">Copies the SCS Telemetry SDK DLL into the game's plugins folder so live data works.</td></tr>
+          <tr><td class="text-white" data-i18n="set_theme">Theme</td>                <td data-i18n="set_theme_d">Dark, Light, or System default.</td></tr>
+          <tr><td class="text-white" data-i18n="set_lang">Language</td>              <td data-i18n="set_lang_d">English or Turkish.</td></tr>
+          <tr><td class="text-white" data-i18n="set_grid">Grid Size</td>             <td data-i18n="set_grid_d">Default grid spacing in SCS units (2–100).</td></tr>
+          <tr><td class="text-white" data-i18n="set_snap">Snap to Grid</td>          <td data-i18n="set_snap_d">Toggle default snap behaviour for new projects.</td></tr>
+          <tr><td class="text-white" data-i18n="set_autosave">Auto-save Interval</td><td data-i18n="set_autosave_d">Seconds between automatic saves to a temp file.</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="border-t border-white/5 pt-8 mt-8 flex justify-between items-center">
+        <div class="text-subtle-white font-label-micro text-label-micro">
+          <p class="mb-1" data-i18n="page_prev">Previous</p>
+          <a class="text-white hover:text-primary-container transition-colors" href="index.html">← <span data-i18n="page_home">Home</span></a>
+        </div>
+        <div class="text-right text-subtle-white font-label-micro text-label-micro">
+          <p class="mb-1" data-i18n="page_next">Next</p>
+          <a class="text-white hover:text-primary-container transition-colors" href="changelog.html"><span data-i18n="page_changelog">Changelog</span> →</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="w-full border-t border-[#0099ff1a] bg-black">
+  <div class="w-full max-w-7xl mx-auto px-8 py-16 flex flex-col md:flex-row justify-between items-center gap-8">
+    <div class="text-white font-bold font-['Space_Grotesk'] uppercase tracking-[0.2em] text-[10px]" data-i18n="footer_copy">© 2025 ETS2 DASHBOARD EDITOR. BUILT FOR PRECISION.</div>
+    <div class="flex gap-6 font-['Space_Grotesk'] uppercase tracking-[0.2em] text-[10px]">
+      <a class="text-white/30 hover:text-[#0099ff] transition-colors" href="documentation.html" data-i18n="footer_docs">Documentation</a>
+      <a class="text-white/30 hover:text-[#0099ff] transition-colors" href="changelog.html" data-i18n="footer_changelog">Changelog</a>
+      <a class="text-white/30 hover:text-[#0099ff] transition-colors" href="https://www.patreon.com/cw/MB3DWorks" target="_blank" data-i18n="footer_patreon">Patreon</a>
+      <a class="text-white/30 hover:text-[#0099ff] transition-colors" href="https://github.com/MBCustoms/ets2-dashboard-editor" target="_blank" data-i18n="footer_github">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════ SCRIPTS ═══════════════════════ -->
+<script>
+/* ── i18n ── */
+const T = {
+  en:{
+    nav_features:"Features",nav_showcase:"Showcase",nav_docs:"Docs",nav_community:"Community",nav_download:"Download",
+    breadcrumb:"Documentation",
+    sb_start:"Getting Started",sb_intro:"Introduction",sb_install:"Installation",sb_first:"First Launch",
+    sb_interface:"Interface",sb_ui:"UI Overview",sb_canvas:"Canvas Editor",sb_sidetabs:"Left Sidebar Tabs",sb_inspector:"Inspector Panel",
+    sb_elements:"Elements",sb_types:"Element Types",sb_add:"Adding Elements",sb_telem:"Telemetry Binding",
+    sb_advanced:"Advanced",sb_3d:"3D Viewer",sb_screens:"Screens",sb_export:"Export Mod",sb_import:"Import SII",sb_shortcuts:"Keyboard Shortcuts",sb_settings:"Settings",
+    intro_h1:"Introduction.",
+    intro_p1:"ETS2 Dashboard Editor is a visual desktop application for designing custom digital dashboard mods for Euro Truck Simulator 2 and American Truck Simulator. Built with Tauri and React, it gives you a professional-grade editor — no coding required.",
+    intro_tip_title:"What is a dashboard mod?",
+    intro_tip_body:"A dashboard mod replaces the in-game instrument cluster with a custom design. You can reposition gauges, add indicator lights, show live telemetry data, and completely change the look of the cockpit.",
+    install_h2:"Installation",
+    inst1_title:"Download the Installer",inst1_body:"Go to the GitHub Releases page and download the latest .msi installer for Windows.",
+    inst2_title:"Install the Telemetry Plugin",inst2_body:"For live data, install the SCS Telemetry SDK plugin. Copy the plugin DLL into your game's bin/win_x64/plugins/ folder. Alternatively, use View → Settings → Install Plugin inside the editor.",
+    inst3_title:"Set Game Root Path",inst3_body:"Open View → Settings and set the Game Root Path to your ETS2/ATS installation folder. This lets the editor find game textures and fonts.",
+    inst4_title:"Launch & Create a Project",inst4_body:"Run the editor, then choose File → New to start a blank project, or File → Open to load an existing .ets2dash project file.",
+    inst_warn_title:"Windows Only",inst_warn_body:"Version 0.1.0 supports Windows only. macOS and Linux builds are planned for a future release.",
+    fl_h2:"First Launch",fl_p1:"When you first open the editor you will see three main panels: the Left Sidebar, the Canvas in the centre, and the Inspector on the right. The top bar contains all file and edit commands.",
+    fl_tip:"Tip: drag any element from the Library tab in the left sidebar and drop it onto the canvas to quickly add a preset dashboard element.",
+    ui_h2:"UI Overview",ui_p1:"The editor is divided into five zones:",
+    ui_col_zone:"Zone",ui_col_desc:"Description",
+    ui_z1:"Header Bar",ui_z1d:"File operations, Edit history (Undo/Redo with 10-entry tooltip), screen selector, and grid controls.",
+    ui_z2:"Canvas Toolbar",ui_z2d:"Zoom controls, layer ordering, alignment / distribution tools, wireframe/collision toggles, view mode switcher (2D / 3D / Split).",
+    ui_z3:"Left Sidebar",ui_z3d:"Five tabs: Screens, Library, Templates, Files, Telemetry. Below the tabs sits the Layers panel showing the element hierarchy.",
+    ui_z4:"Canvas",ui_z4d:"The interactive editing area. Supports pan, zoom, multi-select, drag-and-drop, and live telemetry preview.",
+    ui_z5:"Inspector",ui_z5d:"Context-sensitive panel showing identity, layout, data binding, appearance, and element-specific settings for the selected element.",
+    canvas_h2:"Canvas Editor",canvas_p1:"The canvas is your main design surface. It renders the dashboard in real time using Pixi.js.",
+    canvas_nav_h3:"Navigation",canvas_act:"Action",canvas_how:"How",
+    canvas_pan:"Pan",canvas_pan_h:"Hold middle mouse button and drag, or hold Space + left drag",
+    canvas_zoom:"Zoom",canvas_zoom_h:"Mouse wheel, or use the zoom slider / buttons in the Canvas Toolbar",
+    canvas_fit:"Fit to window",canvas_fit_h:"Click the Fit button in the Canvas Toolbar",
+    canvas_100:"100% zoom",canvas_100_h:"Click the zoom percentage display in the Canvas Toolbar",
+    canvas_sel_h3:"Selection",
+    sel_single:"Select single element",sel_single_h:"Left-click on element",
+    sel_multi:"Add to selection",sel_multi_h:"Ctrl + click",
+    sel_box:"Box select",sel_box_h:"Click and drag on empty canvas area",
+    sel_all:"Select all",sel_all_h:"Ctrl+A",
+    sel_clear:"Deselect",sel_clear_h:"Escape or click empty area",
+    canvas_grid_h3:"Grid & Snap",canvas_grid_p:"Enable Show Grid and Snap to Grid from the Header Bar. Grid size is configurable from 2 to 100 units. When snap is on, every move and resize locks to the nearest grid line.",
+    canvas_align_h3:"Alignment & Distribution",canvas_align_p:"Select 2 or more elements and use the alignment buttons in the Canvas Toolbar to align edges or centres. Select 3 or more to distribute them with equal spacing.",
+    sidetabs_h2:"Left Sidebar Tabs",
+    tab_screens:"Screens",tab_screens_desc:"Lists all dashboard screens in the project (e.g. Screen 100, Shared 950, Warning 900). Click a screen to switch to it. Use the + button to add a new screen with a unique ID.",
+    tab_library:"Library",tab_library_desc:"Contains 50+ ready-made element presets organised into categories: Backgrounds, Text Indicators, Bars, Gauges, and Icons. Drag or double click any preset onto the canvas to add it instantly. Each preset already has the correct dashboard ID and default value set.",
+    tab_templates:"Templates",tab_templates_desc:"Manages SII text templates used by textCommon elements. Templates define the display format with %0, %1 placeholders. You can import additional templates from an existing .sii file via File → Import templates…",
+    tab_files:"Files",tab_files_desc:"Shows the project files tree — textures, materials, and fonts referenced by the project. Useful for checking which assets are included in the mod export.",
+    tab_telemetry:"Telemetry",tab_telemetry_desc:"Shows the live connection status to the SCS SDK. When the game is not running, switch to Simulation Mode to test your dashboard with adjustable sliders and toggles for each telemetry channel.",
+    tab_layers:"Layers Panel",tab_layers_desc:"Located below the tab list. Displays the full element hierarchy as a tree. Click an item to select it, click the eye icon to toggle visibility, and drag items to reorder layers.",
+    insp_h2:"Inspector Panel",insp_p1:"The Inspector on the right side of the screen shows all editable properties of the currently selected element. It is divided into sections:",
+    insp_col_sec:"Section",insp_col_desc:"Contents",
+    insp_identity:"Identity",insp_identity_d:"Unit name, element type, parent name, visibility toggle.",
+    insp_layout:"Layout",insp_layout_d:"Position (Left, Right, Top, Bottom in SCS units), layer number for draw order.",
+    insp_binding:"Data Binding",insp_binding_d:"Dashboard ID selector, default value field (pipe-separated, e.g. 88|km/h), and telemetry preset shortcuts.",
+    insp_appear:"Appearance",insp_appear_d:"Look template selector, SCS colour picker, text content editor with markup support. (text / textCommon only)",
+    insp_bar:"Bar Settings",insp_bar_d:"Min/max value, min/max fill size, vertical orientation toggle, live test slider. (textBar only)",
+    insp_gauge:"Gauge Settings",insp_gauge_d:"Min/max angle, value range (input min/max), pivot offset, reference point, material path, smooth move toggle. (gauge only)",
+    insp_group:"Group Settings",insp_group_d:"Suppress fitting flag, group text content. (group only)",
+    et_h2:"Element Types",et_p1:"The editor supports 6 core element types. Every preset in the Library is built from one of these types:",
+    et_window:"The root container element of a screen. Usually a full-screen background or invisible bounding element. Every screen has at least one window.",
+    et_group:"Organises related elements. Moving or hiding a group affects all its children. Used to build indicator clusters or gauge assemblies.",
+    et_text:"A static or dynamic text label. Supports SCS markup for inline colour, images, and sprite icons. Used for labels and unit annotations.",
+    et_textcommon:"A telemetry-driven text display bound to a dashboard ID. Uses look templates (SII text_template definitions) to format values — e.g., displaying speed with a unit suffix.",
+    et_textbar:"A fill-bar gauge. Its length scales linearly between a min and max value. Can be horizontal or vertical. Commonly used for fuel, air pressure, turbo boost, and similar gauges.",
+    et_gauge:"A rotating pointer gauge. You define the start/end angles and the corresponding value range. The needle rotates smoothly (with optional smooth-move interpolation) to reflect the live value.",
+    add_h2:"Adding Elements",add_dnd_h3:"Method 1 — Drag from Library",
+    add_dnd1:"Open the Library tab in the left sidebar.",add_dnd2:"Browse the categories (Backgrounds, Text Indicators, Bars, Gauges, Icons).",add_dnd3:"Drag or double click the desired preset onto the canvas. It is placed at the drop position with default values pre-filled.",
+    add_copy_h3:"Method 2 — Copy & Paste",add_copy_p:"Select any element, press Ctrl+C to copy, then Ctrl+V to paste. The copy is offset by +10 SCS units from the original. Use Ctrl+D to duplicate in a single action.",
+    add_note:"After adding an element, select it and use the Inspector → Layout section to enter precise coordinates. Position values are in SCS screen units (the default canvas is 800 × 800 units).",
+    telem_h2:"Telemetry Binding",telem_p1:"Each element is connected to the game through a Dashboard ID — a numeric identifier that maps to a specific telemetry channel (speed, RPM, fuel, indicator lights, etc.).",
+    telem_how_h3:"How to Bind",
+    telem_how1:"Select an element on the canvas.",telem_how2:"In the Inspector, find the Data Binding section.",
+    telem_how3:"Choose a Dashboard ID from the dropdown, or type the ID directly. Use the preset shortcuts to quickly assign common channels.",
+    telem_how4:"Set a Default Value — this is what the element displays when no live data is available. For text elements use the pipe format: 88|km/h (value | suffix).",
+    telem_ids_h3:"Common Telemetry IDs",telem_col_ch:"Channel",telem_col_type:"Type",
+    tid_speed:"Speed",tid_gear:"Gear",tid_fuel:"Fuel Amount",tid_fuelbar:"Fuel Bar",tid_water:"Water Temp",tid_cruise:"Cruise Speed",
+    tid_speedo:"Speed Gauge",tid_rpm:"RPM Gauge",tid_park:"Parking Brake",tid_cruise2:"Cruise Control Active",tid_limit:"Speed Limit",tid_clock:"Clock",
+    tid_num:"Number",tid_str:"String",tid_norm:"0–1 (normalised)",tid_bool:"Boolean (0/1)",
+    telem_sim_h3:"Simulation Mode",telem_sim_p:"When the game is not running, open the Telemetry tab in the left sidebar and switch to Simulation Mode. Each bound channel gets a slider or toggle that you can move to test how your dashboard responds to different values — without opening the game.",
+    v3d_h2:"3D Viewer",v3d_p1:"The 3D Viewer lets you preview how your dashboard will look on the actual truck model inside the game. It uses Three.js to render a GLTF/OBJ model with your dashboard design projected onto it via UV mapping.",
+    v3d_access_h3:"Accessing the 3D Viewer",v3d_access_p:"Use the view-mode buttons in the Canvas Toolbar:",
+    v3d_mode:"Mode",v3d_desc:"Description",
+    v3d_2d:"Canvas-only view (default).",v3d_3d:"Full-screen 3D model viewer with your dashboard applied as a texture.",v3d_split:"Split view — edit in 2D on the left, see live 3D result on the right simultaneously.",
+    v3d_steps_h3:"Loading a Model",
+    v3d_s1:"Switch to 3D or Split view.",v3d_s2:"Click Load Model in the 3D panel and select a .gltf or .obj file.",
+    v3d_s3:"The UV wireframe is extracted automatically and overlaid on the 3D mesh. Your current dashboard snapshot is rendered behind the wireframe.",
+    v3d_s4:"Orbit the camera with left-drag, pan with right-drag, zoom with the scroll wheel.",
+    v3d_s5:"Click Download to export the UV + dashboard composite as a PNG image.",
+    v3d_tip:"If the UV coordinates extend beyond [0, 1] (tiled UV), the editor will suggest resizing your canvas to match the UV aspect ratio for the best fit.",
+    scr_h2:"Screens",scr_p1:"A dashboard mod can contain multiple named screens. Each screen has a unique numeric ID that ETS2/ATS uses to switch between them.",
+    scr_col_id:"Screen ID",scr_col_use:"Purpose",
+    scr_100:"Main dashboard (electricity on).",scr_800:"Standard dashboard variant.",
+    scr_900:"Warning / alert overlay displayed on top of the main screen.",scr_950:"Shared screen — elements here appear on all other screens simultaneously.",
+    scr_switch:"Switch between screens using the dropdown in the Header Bar or by clicking a screen in the Screens tab. When Screen 950 (Shared) is shown, its elements appear as a translucent overlay on whichever screen is active.",
+    exp_h2:"Exporting Your Mod",exp_zip_h3:"Export as Mod ZIP",exp_zip_p:"This is the primary export — it produces a ZIP file that can be dropped straight into your game's mod/ folder.",
+    exp_zip1:"Choose File → Export mod…",exp_zip2:"The editor runs a validation check first. Errors (shown in red) must be resolved before exporting. Warnings (yellow) can be skipped.",
+    exp_zip3:"Choose a save location and file name for the ZIP.",
+    exp_zip4:"Click Export. The backend generates dashboard.sii, dashboard_text.{mod_id}.sii, all referenced .mat, .dds, and .font files inside the ZIP.",
+    exp_zip5:"Copy the ZIP into %USERPROFILE%\\Documents\\Euro Truck Simulator 2\\mod\\ and enable it in the game's Mod Manager.",
+    exp_png_h3:"Export as PNG",exp_png_p:"Click the Export PNG button in the Canvas Toolbar to render the current screen to a high-resolution PNG using the actual game materials and fonts (requires Game Root Path to be set in Settings).",
+    exp_warn:"Make sure all asset paths in your project are reachable (either via Game Root Path or Mod Root Paths in Settings) before exporting, otherwise the validation step will report missing file errors.",
+    imp_h2:"Importing an Existing SII Dashboard",imp_p1:"You can load any existing dashboard.sii file to edit it in the visual editor.",
+    imp_s1:"Go to File → Import SII…",imp_s2:"Select your dashboard.sii file.",
+    imp_s3:"Enter the Mod ID — this is used to find the matching dashboard_text.{mod_id}.sii template file in the same directory.",
+    imp_s4:"Click Import. The Rust backend parses the SII file, resolves all referenced materials and fonts, and opens the result as a new project.",
+    imp_note:"To import text templates only (without replacing the whole project), use File → Import templates…",
+    kb_h2:"Keyboard Shortcuts",kb_key:"Shortcut",kb_action:"Action",
+    kb_new:"New project",kb_open:"Open project",kb_save:"Save project",kb_saveas:"Save as…",
+    kb_undo:"Undo",kb_redo:"Redo",kb_cut:"Cut selected",kb_copy:"Copy selected",
+    kb_paste:"Paste (offset +10 units)",kb_dupe:"Duplicate selected",kb_selall:"Select all elements",kb_del:"Delete selected",kb_esc:"Deselect all",
+    set_h2:"Settings",set_p1:"Open View → Settings… to configure the editor.",set_col:"Setting",set_desc:"Description",
+    set_gamepath:"Game Root Path",set_gamepath_d:"Path to your ETS2 or ATS installation. Required for texture/font lookup and PNG export.",
+    set_modpaths:"Mod Root Paths",set_modpaths_d:"Additional folders searched for assets before falling back to the game root. Add your mod workspace here.",
+    set_plugin:"Install Plugin",set_plugin_d:"Copies the SCS Telemetry SDK DLL into the game's plugins folder so live data works.",
+    set_theme:"Theme",set_theme_d:"Dark, Light, or System default.",
+    set_lang:"Language",set_lang_d:"English or Turkish.",
+    set_grid:"Grid Size",set_grid_d:"Default grid spacing in SCS units (2–100).",
+    set_snap:"Snap to Grid",set_snap_d:"Toggle default snap behaviour for new projects.",
+    set_autosave:"Auto-save Interval",set_autosave_d:"Seconds between automatic saves to a temp file.",
+    page_prev:"Previous",page_home:"Home",page_next:"Next",page_changelog:"Changelog",
+    footer_copy:"© 2025 ETS2 DASHBOARD EDITOR. BUILT FOR PRECISION.",
+    footer_docs:"Documentation",footer_changelog:"Changelog",footer_patreon:"Patreon",footer_github:"GitHub"
+  },
+  tr:{
+    nav_features:"Özellikler",nav_showcase:"Galeri",nav_docs:"Dökümantasyon",nav_community:"Topluluk",nav_download:"İndir",
+    breadcrumb:"Dökümantasyon",
+    sb_start:"Başlangıç",sb_intro:"Giriş",sb_install:"Kurulum",sb_first:"İlk Başlatma",
+    sb_interface:"Arayüz",sb_ui:"Genel Bakış",sb_canvas:"Tuval Editörü",sb_sidetabs:"Sol Kenar Sekmeleri",sb_inspector:"Denetçi Paneli",
+    sb_elements:"Öğeler",sb_types:"Öğe Türleri",sb_add:"Öğe Ekleme",sb_telem:"Telemetri Bağlama",
+    sb_advanced:"Gelişmiş",sb_3d:"3D Görüntüleyici",sb_screens:"Ekranlar",sb_export:"Mod Dışa Aktarma",sb_import:"SII İçe Aktarma",sb_shortcuts:"Klavye Kısayolları",sb_settings:"Ayarlar",
+    intro_h1:"Giriş.",
+    intro_p1:"ETS2 Dashboard Editor, Euro Truck Simulator 2 ve American Truck Simulator için özel dijital gösterge panosu modları tasarlamaya yönelik görsel bir masaüstü uygulamasıdır. Tauri ve React ile geliştirilmiş olup kod yazmadan profesyonel düzeyde bir editör sunar.",
+    intro_tip_title:"Gösterge paneli modu nedir?",
+    intro_tip_body:"Gösterge paneli modu, oyun içindeki enstrüman kümesini özel bir tasarımla değiştirir. Göstergeleri yeniden konumlandırabilir, uyarı ışıkları ekleyebilir, canlı telemetri verisi gösterebilir ve kokpitin görünümünü tamamen değiştirebilirsiniz.",
+    install_h2:"Kurulum",
+    inst1_title:"Kurulum Dosyasını İndir",inst1_body:"GitHub Releases sayfasına git ve Windows için en son .msi kurulum dosyasını indir.",
+    inst2_title:"Telemetri Eklentisini Kur",inst2_body:"Canlı veri için SCS Telemetri SDK eklentisini kur. Eklenti DLL dosyasını oyunun bin/win_x64/plugins/ klasörüne kopyala. Bunun yerine editör içinden View → Settings → Install Plugin seçeneğini de kullanabilirsin.",
+    inst3_title:"Oyun Kök Yolunu Ayarla",inst3_body:"View → Settings'i aç ve Game Root Path'i ETS2/ATS kurulum klasörüne ayarla. Bu, editörün oyun dokularını ve fontlarını bulmasını sağlar.",
+    inst4_title:"Başlat ve Proje Oluştur",inst4_body:"Editörü çalıştır, ardından boş bir proje başlatmak için File → New'i veya mevcut bir .ets2dash proje dosyasını yüklemek için File → Open'ı seç.",
+    inst_warn_title:"Yalnızca Windows",inst_warn_body:"Versiyon 0.1.0 yalnızca Windows'u desteklemektedir. macOS ve Linux sürümleri gelecekte planlanmaktadır.",
+    fl_h2:"İlk Başlatma",fl_p1:"Editörü ilk açtığında üç ana panel göreceksin: solda Sol Kenar Çubuğu, ortada Tuval ve sağda Denetçi. Üst çubuk tüm dosya ve düzenleme komutlarını içerir.",
+    fl_tip:"İpucu: Sol kenar çubuğundaki Library sekmesinden herhangi bir öğeyi tuvale sürükleyip bırakarak hazır bir gösterge paneli öğesini hızlıca ekleyebilirsin.",
+    ui_h2:"Arayüz Genel Bakış",ui_p1:"Editör beş bölgeye ayrılmıştır:",
+    ui_col_zone:"Bölge",ui_col_desc:"Açıklama",
+    ui_z1:"Başlık Çubuğu",ui_z1d:"Dosya işlemleri, Düzenleme geçmişi (10 girişli araç ipucu ile Geri Al/Yinele), ekran seçici ve ızgara kontrolleri.",
+    ui_z2:"Tuval Araç Çubuğu",ui_z2d:"Yakınlaştırma kontrolleri, katman sıralaması, hizalama / dağıtma araçları, tel kafes/çarpışma geçişleri, görünüm modu değiştirici (2D / 3D / Bölünmüş).",
+    ui_z3:"Sol Kenar Çubuğu",ui_z3d:"Beş sekme: Ekranlar, Kütüphane, Şablonlar, Dosyalar, Telemetri. Sekmelerin altında öğe hiyerarşisini gösteren Katmanlar paneli bulunur.",
+    ui_z4:"Tuval",ui_z4d:"Etkileşimli düzenleme alanı. Kaydırma, yakınlaştırma, çoklu seçim, sürükle-bırak ve canlı telemetri önizlemesini destekler.",
+    ui_z5:"Denetçi",ui_z5d:"Seçili öğe için kimlik, düzen, veri bağlama, görünüm ve öğeye özgü ayarları gösteren bağlam duyarlı panel.",
+    canvas_h2:"Tuval Editörü",canvas_p1:"Tuval, ana tasarım yüzeyindir. Pixi.js kullanarak gösterge panosunu gerçek zamanlı olarak işler.",
+    canvas_nav_h3:"Gezinme",canvas_act:"İşlem",canvas_how:"Nasıl",
+    canvas_pan:"Kaydır",canvas_pan_h:"Orta fare tuşunu basılı tut ve sürükle, ya da Space + sol sürükleme",
+    canvas_zoom:"Yakınlaştır",canvas_zoom_h:"Fare tekerleği veya Tuval Araç Çubuğundaki zoom kaydırıcısı/butonları",
+    canvas_fit:"Pencereye sığdır",canvas_fit_h:"Tuval Araç Çubuğundaki Fit butonuna tıkla",
+    canvas_100:"%100 yakınlaştırma",canvas_100_h:"Tuval Araç Çubuğundaki zoom yüzdesi göstergesine tıkla",
+    canvas_sel_h3:"Seçim",
+    sel_single:"Tek öğe seç",sel_single_h:"Öğeye sol tıkla",
+    sel_multi:"Seçime ekle",sel_multi_h:"Ctrl + tıkla",
+    sel_box:"Alan seçimi",sel_box_h:"Boş tuval alanına tıklayıp sürükle",
+    sel_all:"Tümünü seç",sel_all_h:"Ctrl+A",
+    sel_clear:"Seçimi kaldır",sel_clear_h:"Escape veya boş alana tıkla",
+    canvas_grid_h3:"Izgara ve Yapıştırma",canvas_grid_p:"Başlık Çubuğundan Izgara Göster ve Izgaraya Yapıştır'ı etkinleştir. Izgara boyutu 2 ile 100 birim arasında yapılandırılabilir. Yapıştırma açıkken, her hareket ve yeniden boyutlandırma en yakın ızgara çizgisine kilitlenir.",
+    canvas_align_h3:"Hizalama ve Dağıtma",canvas_align_p:"2 veya daha fazla öğe seç ve Tuval Araç Çubuğundaki hizalama butonlarını kullanarak kenarları veya orta noktaları hizala. Eşit aralıklarla dağıtmak için 3 veya daha fazla öğe seç.",
+    sidetabs_h2:"Sol Kenar Çubuğu Sekmeleri",
+    tab_screens:"Ekranlar",tab_screens_desc:"Projedeki tüm gösterge paneli ekranlarını listeler (örn. Ekran 100, Paylaşılan 950, Uyarı 900). Geçiş yapmak için bir ekrana tıkla. Benzersiz ID ile yeni ekran eklemek için + butonunu kullan.",
+    tab_library:"Kütüphane",tab_library_desc:"Kategorilere göre düzenlenmiş 50'den fazla hazır öğe ön ayarı içerir: Arka Planlar, Metin Göstergeleri, Çubuklar, Göstergeler ve Simgeler. Herhangi bir ön ayarı tuvale sürükleyerek veya çift tıklayarak anında ekle. Her ön ayarın doğru dashboard ID'si ve varsayılan değeri zaten ayarlanmış durumda.",
+    tab_templates:"Şablonlar",tab_templates_desc:"textCommon öğeleri tarafından kullanılan SII metin şablonlarını yönetir. Şablonlar %0, %1 yer tutucularıyla görüntüleme biçimini tanımlar. File → Import templates… aracılığıyla mevcut bir .sii dosyasından ek şablonlar içe aktarabilirsin.",
+    tab_files:"Dosyalar",tab_files_desc:"Proje tarafından başvurulan dokuları, materyalleri ve fontları gösteren proje dosya ağacını görüntüler. Mod dışa aktarmasına hangi varlıkların dahil edildiğini kontrol etmek için kullanışlıdır.",
+    tab_telemetry:"Telemetri",tab_telemetry_desc:"SCS SDK'ya canlı bağlantı durumunu gösterir. Oyun çalışmadığında, her telemetri kanalı için ayarlanabilir kaydırıcılar ve geçişlerle gösterge panosunu test etmek için Simülasyon Modu'na geç.",
+    tab_layers:"Katmanlar Paneli",tab_layers_desc:"Sekme listesinin altında bulunur. Tam öğe hiyerarşisini ağaç olarak görüntüler. Seçmek için bir öğeye tıkla, görünürlüğü değiştirmek için göz simgesine tıkla ve katmanları yeniden sıralamak için öğeleri sürükle.",
+    insp_h2:"Denetçi Paneli",insp_p1:"Ekranın sağ tarafındaki Denetçi, seçili öğenin tüm düzenlenebilir özelliklerini gösterir. Bölümlere ayrılmıştır:",
+    insp_col_sec:"Bölüm",insp_col_desc:"İçerik",
+    insp_identity:"Kimlik",insp_identity_d:"Birim adı, öğe türü, üst öğe adı, görünürlük geçişi.",
+    insp_layout:"Düzen",insp_layout_d:"Konum (SCS birimlerinde Sol, Sağ, Üst, Alt), çizim sırası için katman numarası.",
+    insp_binding:"Veri Bağlama",insp_binding_d:"Dashboard ID seçici, varsayılan değer alanı (kanal ayrılmış, örn. 88|km/h) ve telemetri ön ayar kısayolları.",
+    insp_appear:"Görünüm",insp_appear_d:"Görünüm şablonu seçici, SCS renk seçici, işaretleme desteğiyle metin içerik editörü. (yalnızca text / textCommon)",
+    insp_bar:"Çubuk Ayarları",insp_bar_d:"Min/maks değer, min/maks dolgu boyutu, dikey yönlendirme geçişi, canlı test kaydırıcısı. (yalnızca textBar)",
+    insp_gauge:"Gösterge Ayarları",insp_gauge_d:"Min/maks açı, değer aralığı (giriş min/maks), pivot ofseti, referans noktası, materyal yolu, düzgün hareket geçişi. (yalnızca gauge)",
+    insp_group:"Grup Ayarları",insp_group_d:"Sığdırmayı bastır bayrağı, grup metin içeriği. (yalnızca group)",
+    et_h2:"Öğe Türleri",et_p1:"Editör 6 temel öğe türünü destekler. Kütüphanedeki her ön ayar bu türlerden biri üzerine inşa edilmiştir:",
+    et_window:"Bir ekranın kök kapsayıcı öğesi. Genellikle tam ekran bir arka plan veya görünmez sınırlayıcı öğe. Her ekranın en az bir window'u vardır.",
+    et_group:"İlgili öğeleri düzenler. Bir grubu taşımak veya gizlemek tüm çocuklarını etkiler. Gösterge kümeleri veya gauge düzenekleri oluşturmak için kullanılır.",
+    et_text:"Statik veya dinamik bir metin etiketi. Satır içi renk, resimler ve sprite simgeleri için SCS işaretlemeyi destekler. Etiketler ve birim açıklamaları için kullanılır.",
+    et_textcommon:"Bir dashboard ID'sine bağlı telemetri odaklı metin görüntüsü. Değerleri biçimlendirmek için look şablonları (SII text_template tanımları) kullanır — ör. hızı birim son ekiyle görüntüleme.",
+    et_textbar:"Dolgu çubuğu göstergesi. Uzunluğu bir min ve maks değer arasında doğrusal olarak ölçeklenir. Yatay veya dikey olabilir. Yakıt, hava basıncı, turbo boost ve benzeri göstergeler için yaygın olarak kullanılır.",
+    et_gauge:"Dönen işaretçi göstergesi. Başlangıç/bitiş açılarını ve buna karşılık gelen değer aralığını tanımlarsın. İbre, canlı değeri yansıtmak için düzgünce döner (isteğe bağlı smooth-move interpolasyonuyla).",
+    add_h2:"Öğe Ekleme",add_dnd_h3:"Yöntem 1 — Kütüphaneden Sürükle",
+    add_dnd1:"Sol kenar çubuğundaki Kütüphane sekmesini aç.",add_dnd2:"Kategorilere göz at (Arka Planlar, Metin Göstergeleri, Çubuklar, Göstergeler, Simgeler).",add_dnd3:"İstenen ön ayarı tuvale sürükle veya çift tıkla. Varsayılan değerler önceden doldurulmuş halde bırakma konumuna yerleştirilir.",
+    add_copy_h3:"Yöntem 2 — Kopyala ve Yapıştır",add_copy_p:"Herhangi bir öğeyi seç, kopyalamak için Ctrl+C'ye bas, ardından yapıştırmak için Ctrl+V'ye bas. Kopya, orijinalden +10 SCS birimi kaydırılır. Tek işlemde kopyalamak için Ctrl+D kullan.",
+    add_note:"Öğe ekledikten sonra, kesin koordinatlar girmek için seçip Denetçi → Düzen bölümünü kullan. Konum değerleri SCS ekran birimleriyledir (varsayılan tuval 800 × 800 birimdir).",
+    telem_h2:"Telemetri Bağlama",telem_p1:"Her öğe, belirli bir telemetri kanalına (hız, devir, yakıt, gösterge ışıkları vb.) eşlenen sayısal bir tanımlayıcı olan Dashboard ID aracılığıyla oyuna bağlanır.",
+    telem_how_h3:"Nasıl Bağlanır",
+    telem_how1:"Tuvalde bir öğe seç.",telem_how2:"Denetçi'de Veri Bağlama bölümünü bul.",
+    telem_how3:"Açılır menüden bir Dashboard ID seç veya doğrudan ID'yi yaz. Yaygın kanalları hızla atamak için ön ayar kısayollarını kullan.",
+    telem_how4:"Varsayılan Değer ayarla — bu, canlı veri mevcut olmadığında öğenin görüntülediği değerdir. Metin öğeleri için kanal biçimini kullan: 88|km/h (değer | son ek).",
+    telem_ids_h3:"Yaygın Telemetri ID'leri",telem_col_ch:"Kanal",telem_col_type:"Tür",
+    tid_speed:"Hız",tid_gear:"Vites",tid_fuel:"Yakıt Miktarı",tid_fuelbar:"Yakıt Çubuğu",tid_water:"Su Sıcaklığı",tid_cruise:"Hız Sabitleyici",
+    tid_speedo:"Hız Göstergesi",tid_rpm:"Devir Göstergesi",tid_park:"El Freni",tid_cruise2:"Hız Sabitleyici Aktif",tid_limit:"Hız Limiti",tid_clock:"Saat",
+    tid_num:"Sayı",tid_str:"Metin",tid_norm:"0–1 (normalleştirilmiş)",tid_bool:"Boolean (0/1)",
+    telem_sim_h3:"Simülasyon Modu",telem_sim_p:"Oyun çalışmadığında, sol kenar çubuğundaki Telemetri sekmesini aç ve Simülasyon Modu'na geç. Her bağlı kanal, gösterge panosunun farklı değerlere nasıl tepki verdiğini — oyunu açmadan — test etmek için hareket ettirebileceğin bir kaydırıcı veya geçiş alır.",
+    v3d_h2:"3D Görüntüleyici",v3d_p1:"3D Görüntüleyici, gösterge panosunun oyun içindeki gerçek kamyon modelinde nasıl görüneceğini önizlemeni sağlar. UV haritalama aracılığıyla gösterge paneli tasarımın üzerine yansıtılmış bir GLTF/OBJ modeli işlemek için Three.js kullanır.",
+    v3d_access_h3:"3D Görüntüleyiciye Erişim",v3d_access_p:"Tuval Araç Çubuğundaki görünüm modu butonlarını kullan:",
+    v3d_mode:"Mod",v3d_desc:"Açıklama",
+    v3d_2d:"Yalnızca tuval görünümü (varsayılan).",v3d_3d:"Gösterge panonun doku olarak uygulandığı tam ekran 3D model görüntüleyici.",v3d_split:"Bölünmüş görünüm — solda 2D'de düzenle, sağda canlı 3D sonucu aynı anda gör.",
+    v3d_steps_h3:"Model Yükleme",
+    v3d_s1:"3D veya Bölünmüş görünüme geç.",v3d_s2:"3D panelinde Model Yükle'ye tıkla ve bir .gltf veya .obj dosyası seç.",
+    v3d_s3:"UV tel kafesi otomatik olarak çıkarılır ve 3D üzerine katmanlanır. Mevcut gösterge paneli anlık görüntün tel kafes arkasında işlenir.",
+    v3d_s4:"Kamerayı sol sürükleme ile döndür, sağ sürükleme ile kaydır, fare tekerleği ile yakınlaştır.",
+    v3d_s5:"UV + gösterge paneli bileşimini PNG resmi olarak dışa aktarmak için İndir'e tıkla.",
+    v3d_tip:"UV koordinatları [0, 1]'in ötesine uzanıyorsa (döşenmiş UV), editör en iyi uyum için tuvalini UV en boy oranıyla eşleşecek şekilde yeniden boyutlandırmanı önerecektir.",
+    scr_h2:"Ekranlar",scr_p1:"Bir gösterge paneli modu birden fazla adlandırılmış ekran içerebilir. Her ekranın ETS2/ATS'nin aralarında geçiş yapmak için kullandığı benzersiz bir sayısal ID'si vardır.",
+    scr_col_id:"Ekran ID",scr_col_use:"Amaç",
+    scr_100:"Ana gösterge paneli (elektrik açık).",scr_800:"Standart gösterge paneli varyantı.",
+    scr_900:"Ana ekranın üzerinde görüntülenen uyarı / alert katmanı.",scr_950:"Paylaşılan ekran — buradaki öğeler aynı anda tüm diğer ekranlarda görünür.",
+    scr_switch:"Başlık Çubuğundaki açılır menüyü kullanarak veya Ekranlar sekmesinde bir ekrana tıklayarak ekranlar arasında geçiş yap. Ekran 950 (Paylaşılan) gösterildiğinde, öğeleri aktif olan ekran üzerinde yarı saydam bir katman olarak görünür.",
+    exp_h2:"Modunu Dışa Aktarma",exp_zip_h3:"Mod ZIP Olarak Dışa Aktar",exp_zip_p:"Bu, birincil dışa aktarmadır — doğrudan oyunun mod/ klasörüne bırakılabilecek bir ZIP dosyası üretir.",
+    exp_zip1:"File → Export mod…'ı seç.",exp_zip2:"Editör önce bir doğrulama kontrolü çalıştırır. Hatalar (kırmızı gösterilen) dışa aktarmadan önce çözülmelidir. Uyarılar (sarı) atlanabilir.",
+    exp_zip3:"ZIP için bir kayıt konumu ve dosya adı seç.",
+    exp_zip4:"Dışa Aktar'a tıkla. Arkaplanda ZIP içinde dashboard.sii, dashboard_text.{mod_id}.sii, tüm başvurulan .mat, .dds ve .font dosyalarını oluşturur.",
+    exp_zip5:"ZIP'i %USERPROFILE%\\Documents\\Euro Truck Simulator 2\\mod\\ klasörüne kopyala ve oyunun Mod Yöneticisi'nde etkinleştir.",
+    exp_png_h3:"PNG Olarak Dışa Aktar",exp_png_p:"Gerçek oyun materyalleri ve fontları kullanarak mevcut ekranı yüksek çözünürlüklü PNG olarak işlemek için Tuval Araç Çubuğundaki PNG Dışa Aktar butonuna tıkla (Ayarlar'da Oyun Kök Yolunun ayarlanmış olması gerekir).",
+    exp_warn:"Dışa aktarmadan önce projenizden tüm varlık yollarına erişilebilir olduğundan emin olun (Ayarlar'daki Oyun Kök Yolu veya Mod Kök Yolları aracılığıyla), aksi takdirde doğrulama adımı eksik dosya hataları bildirecektir.",
+    imp_h2:"Mevcut Bir SII Dashboard İçe Aktarma",imp_p1:"Görsel editörde düzenlemek için herhangi bir mevcut dashboard.sii dosyasını yükleyebilirsin.",
+    imp_s1:"File → Import SII…'e git.",imp_s2:"dashboard.sii dosyanı seç.",
+    imp_s3:"Mod ID'yi gir — bu, aynı dizindeki eşleşen dashboard_text.{mod_id}.sii şablon dosyasını bulmak için kullanılır.",
+    imp_s4:"İçe Aktar'a tıkla. Rust arka ucu SII dosyasını ayrıştırır, başvurulan tüm materyalleri ve fontları çözer ve sonucu yeni bir proje olarak açar.",
+    imp_note:"Yalnızca metin şablonlarını içe aktarmak için (tüm projeyi değiştirmeden), File → Import templates… kullan.",
+    kb_h2:"Klavye Kısayolları",kb_key:"Kısayol",kb_action:"İşlem",
+    kb_new:"Yeni proje",kb_open:"Proje aç",kb_save:"Projeyi kaydet",kb_saveas:"Farklı kaydet…",
+    kb_undo:"Geri al",kb_redo:"Yinele",kb_cut:"Seçileni kes",kb_copy:"Seçileni kopyala",
+    kb_paste:"Yapıştır (+10 birim kaydır)",kb_dupe:"Seçileni çoğalt",kb_selall:"Tüm öğeleri seç",kb_del:"Seçileni sil",kb_esc:"Seçimi kaldır",
+    set_h2:"Ayarlar",set_p1:"Editörü yapılandırmak için View → Settings… açın.",set_col:"Ayar",set_desc:"Açıklama",
+    set_gamepath:"Oyun Kök Yolu",set_gamepath_d:"ETS2 veya ATS kurulumuna giden yol. Doku/font araması ve PNG dışa aktarma için gereklidir.",
+    set_modpaths:"Mod Kök Yolları",set_modpaths_d:"Oyun köküne geri düşmeden önce varlıklar için aranan ek klasörler. Mod çalışma alanını buraya ekle.",
+    set_plugin:"Eklenti Kur",set_plugin_d:"SCS Telemetri SDK DLL'sini oyunun plugins klasörüne kopyalar, böylece canlı veri çalışır.",
+    set_theme:"Tema",set_theme_d:"Koyu, Açık veya Sistem varsayılanı.",
+    set_lang:"Dil",set_lang_d:"İngilizce veya Türkçe.",
+    set_grid:"Izgara Boyutu",set_grid_d:"SCS birimlerinde varsayılan ızgara aralığı (2–100).",
+    set_snap:"Izgaraya Yapıştır",set_snap_d:"Yeni projeler için varsayılan yapıştırma davranışını değiştir.",
+    set_autosave:"Otomatik Kaydetme Aralığı",set_autosave_d:"Geçici dosyaya otomatik kaydetmeler arasındaki saniye sayısı.",
+    page_prev:"Önceki",page_home:"Ana Sayfa",page_next:"Sonraki",page_changelog:"Değişiklik Günlüğü",
+    footer_copy:"© 2025 ETS2 DASHBOARD EDITOR. HASSASLIK İÇİN YAPILDI.",
+    footer_docs:"Dökümantasyon",footer_changelog:"Değişiklik Günlüğü",footer_patreon:"Patreon",footer_github:"GitHub"
+  }
+};
+
+function setLang(lang){
+  localStorage.setItem('lang',lang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if(T[lang]&&T[lang][k]) el.textContent=T[lang][k];
+  });
+  document.getElementById('btn-en').style.color=lang==='en'?'#0099ff':'rgba(255,255,255,0.6)';
+  document.getElementById('btn-tr').style.color=lang==='tr'?'#0099ff':'rgba(255,255,255,0.6)';
+  document.documentElement.lang=lang;
+}
+
+(function(){setLang(localStorage.getItem('lang')||'en');})();
+
+/* ── Sidebar active link on scroll ── */
+const sections=document.querySelectorAll('.doc-section');
+const links=document.querySelectorAll('.sidebar-link');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('is-active'));
+      const active=document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+      if(active) active.classList.add('is-active');
+    }
+  });
+},{rootMargin:'-30% 0px -65% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
